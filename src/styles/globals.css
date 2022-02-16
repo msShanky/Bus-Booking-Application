@@ -25,3 +25,21 @@ a {
 
 .layout {
 }
+
+.app-container {
+	max-width: 1222px;
+	margin: auto;
+	height: 93vh;
+}
+
+.sectionContainer {
+	margin-top: 3em;
+}
+
+.sectionOneRow {
+	height: 350px;
+}
+
+.tabContainer {
+	height: 350px;
+}

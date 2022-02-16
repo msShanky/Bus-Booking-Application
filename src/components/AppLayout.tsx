@@ -5,9 +5,9 @@ const { Content } = Layout;
 
 const AppLayout: FunctionComponent = ({ children }) => {
 	return (
-		<Layout className="layout">
+		<Layout hasSider={false} className="layout">
 			<AppHeader />
-			<Content>{children}</Content>
+			<Content className="app-container">{children}</Content>
 		</Layout>
 	);
 };
