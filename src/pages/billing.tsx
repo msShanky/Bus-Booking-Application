@@ -42,7 +42,7 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-	const API_URL = process.env.API_URL || "http://localhost:1337/api";
+	const API_URL = process.env.API_URL || "https://bus-booking-cms.herokuapp.com/api";
 	const { data } = await axios.get<AxiosResponse<StrapiResponseType<Invoice>>>(`${API_URL}/invoices`, {
 		params: {
 			populate: "*",
