@@ -6,7 +6,7 @@ import qs from "qs";
 //   data: { id: tripId, attributes: trip },
 // } = await axios.post<StrapiResponse<Trip>, StrapiResponse<Trip>, StrapiPostBody<Trip>>(
 
-const API_URL = process.env.API_URL || "http://localhost:1337/api";
+const API_URL = process.env.API_URL || "https://bus-booking-cms.herokuapp.com/api";
 
 export const createTrip = (formValues: FormValues) => {
 	const { place, date, time } = formValues;
