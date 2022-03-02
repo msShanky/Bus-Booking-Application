@@ -133,12 +133,14 @@ export const createInvoice = (formValues: InvoiceFormType, activeItem: StrapiRes
 		},
 	};
 
-	console.log("THE POST BODY GENERATED IS", postBody);
-
 	return axios.post<StrapiPostResponse<Invoice>>(`${API_URL}/invoices`, postBody, {
 		params: {
 			publicationState: "preview",
 			populate: "*",
 		},
 	});
+};
+
+export const deleteClient = (id: number) => {
+	return axios.delete(`${API_URL}/clients/${id}`);
 };
