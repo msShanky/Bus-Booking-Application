@@ -2,11 +2,12 @@ import axios, { AxiosResponse } from "axios";
 import moment, { Moment } from "moment";
 import { FormValues } from "../types/BookingForm";
 import qs from "qs";
+import { InvoiceFormType } from "../components/common/InvoiceForm";
 // const {
 //   data: { id: tripId, attributes: trip },
 // } = await axios.post<StrapiResponse<Trip>, StrapiResponse<Trip>, StrapiPostBody<Trip>>(
 
-const API_URL = process.env.API_URL || "https://bus-booking-cms.herokuapp.com/api";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://bus-booking-cms.herokuapp.com/api";
 
 export const createTrip = (formValues: FormValues) => {
 	const { place, date, time } = formValues;
@@ -83,6 +84,61 @@ export const getBookingsByDate = (date: Moment) => {
 		},
 		paramsSerializer: function (params) {
 			return qs.stringify(params, { arrayFormat: "brackets", encodeValuesOnly: true });
+		},
+	});
+};
+
+export const fetchBuses = () => {
+	return axios.get<StrapiResponseType<Bus>>(`${API_URL}/buses`, {
+		params: {
+			publicationState: "preview",
+		},
+	});
+};
+
+export const fetchClients = () => {
+	return axios.get<StrapiResponseType<Client>>(`${API_URL}/clients`, {
+		params: {
+			publicationState: "preview",
+		},
+	});
+};
+
+export const fetchBookings = () => {
+	return axios.get<StrapiResponseType<Booking>>(`${API_URL}/bookings`, {
+		params: {
+			publicationState: "preview",
+			populate: "*",
+		},
+	});
+};
+
+export const createInvoice = (formValues: InvoiceFormType, activeItem: StrapiResponseData<Booking>) => {
+	console.log("THE POST BODY RECEIVED IS", formValues);
+
+	const { attributes, id } = activeItem;
+	const { invoice } = formValues;
+
+	const relations = {
+		booking: id,
+		client: attributes.client?.data.id,
+		trip: attributes.trip?.data.id,
+	};
+
+	const postBody = {
+		data: {
+			invoiceTime: moment().toISOString(),
+			...invoice,
+			...relations,
+		},
+	};
+
+	console.log("THE POST BODY GENERATED IS", postBody);
+
+	return axios.post<StrapiPostResponse<Invoice>>(`${API_URL}/invoices`, postBody, {
+		params: {
+			publicationState: "preview",
+			populate: "*",
 		},
 	});
 };
