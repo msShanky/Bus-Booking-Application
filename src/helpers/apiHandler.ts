@@ -88,10 +88,15 @@ export const getBookingsByDate = (date: Moment) => {
 };
 
 export const getBookingsByMonth = (dateRange: Array<string>) => {
-	return axios.get<Booking, AxiosResponse<StrapiResponseType<Booking>>>(`${API_URL}/bookings`, {
+	return axios.get<Booking, AxiosResponse<StrapiResponseType<Array<BookingMonthlyRecord>>>>(`${API_URL}/bookings`, {
 		params: {
 			publicationState: "preview",
-			populate: "*",
+			populate: {
+				trip: {
+					fields: ["tripDate"],
+				},
+			},
+			fields: ["id"],
 			filters: {
 				trip: {
 					tripDate: {

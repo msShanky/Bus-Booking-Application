@@ -8,6 +8,7 @@ import { createBooking, createClient, createTrip, getBookingsByDate, getBookings
 import { ReactNode, useEffect, useState } from "react";
 import { Spin } from "antd";
 import moment, { Moment } from "moment";
+import { getMonthlyTripDates } from "../helpers/dataFormatter";
 const { TabPane } = Tabs;
 const { Title } = Typography;
 
@@ -16,6 +17,7 @@ const Home: NextPage = () => {
 	const [selectedDate, setSelectedDate] = useState<Moment>(moment());
 	const [activeBookings, setActiveBookings] = useState<StrapiResponseData<Booking>[]>();
 	const [monthlyBookings, setMonthlyBookings] = useState<StrapiResponseData<Booking>[]>();
+	const [availableBookings, setMonthlyAvailableBookings] = useState<Array<string>>([]);
 	const [dateRange, setDateRange] = useState([
 		moment().startOf("month").format("YYYY-MM-DD"),
 		moment().endOf("month").format("YYYY-MM-DD"),
@@ -60,7 +62,9 @@ const Home: NextPage = () => {
 	};
 
 	const dateCellRender = (date: Moment): ReactNode => {
-		return <span className="calendarBooking" />;
+		console.log("THE DATE VALUE IS");
+		const cellDate = date.format("YYYY-MM-DD");
+		return availableBookings.includes(cellDate) && <span className="calendarBooking" />;
 	};
 
 	useEffect(() => {
@@ -69,9 +73,13 @@ const Home: NextPage = () => {
 			const { data: monthlyBooking } = await getBookingsByMonth(dateRange);
 			setActiveBookings(data.data);
 			setMonthlyBookings(monthlyBooking.data);
+			console.log("MONTHLY BOOKING", monthlyBooking.data);
+			setMonthlyAvailableBookings(getMonthlyTripDates(monthlyBooking.data));
 		};
 		fetchBookings();
 	}, [selectedDate, dateRange]);
+
+	console.log("THE MONTHLY BOOKINGS", monthlyBookings);
 
 	return (
 		<Layout>
@@ -92,8 +100,11 @@ const Home: NextPage = () => {
 						<Tabs className="tabContainer" defaultActiveKey="1" onChange={onTabChange}>
 							{activeBookings &&
 								activeBookings.map((booking, index) => {
+									const date = booking.attributes.trip?.data.attributes.tripDate;
+									const month = moment(date).format("MMMM");
+									const day = moment(date).date();
 									return (
-										<TabPane tab={"April 5"} key={index.toString()}>
+										<TabPane tab={`${month} ${day}`} key={index.toString()}>
 											<TripDescription bookingInfo={booking} />
 										</TabPane>
 									);
@@ -103,7 +114,7 @@ const Home: NextPage = () => {
 				</Row>
 				<>
 					<Title level={4}>Feed</Title>
-					{apiState !== "success" && <BookingForm onFormSubmit={handleBookingForm} />}
+					{apiState !== "success" && apiState !== "inProgress" && <BookingForm onFormSubmit={handleBookingForm} />}
 					{apiState === "success" && (
 						<Result
 							status="success"
@@ -121,7 +132,7 @@ const Home: NextPage = () => {
 							}
 						/>
 					)}
-					{apiState === "inProgress" && <Spin size="large" />}
+					{apiState === "inProgress" && <Spin style={{ width: "100%" }} size="large" />}
 				</>
 			</Space>
 			{/* Section 1 : Date picker and details */}
