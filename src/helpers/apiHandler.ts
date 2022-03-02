@@ -69,7 +69,6 @@ export const createBooking = (formValues: FormValues, tripId: number, clientId: 
 };
 
 export const getBookingsByDate = (date: Moment) => {
-	console.log("DATE RECEIVED", date);
 	return axios.get<Booking, AxiosResponse<StrapiResponseType<Booking>>>(`${API_URL}/bookings`, {
 		params: {
 			publicationState: "preview",
@@ -78,6 +77,26 @@ export const getBookingsByDate = (date: Moment) => {
 				trip: {
 					tripDate: {
 						$eq: date ? moment(date).format("YYYY-MM-DD") : moment().format("YYYY-MM-DD"),
+					},
+				},
+			},
+		},
+		paramsSerializer: function (params) {
+			return qs.stringify(params, { arrayFormat: "brackets", encodeValuesOnly: true });
+		},
+	});
+};
+
+export const getBookingsByMonth = (dateRange: Array<string>) => {
+	return axios.get<Booking, AxiosResponse<StrapiResponseType<Booking>>>(`${API_URL}/bookings`, {
+		params: {
+			publicationState: "preview",
+			populate: "*",
+			filters: {
+				trip: {
+					tripDate: {
+						$gte: dateRange[0],
+						$lte: dateRange[1],
 					},
 				},
 			},

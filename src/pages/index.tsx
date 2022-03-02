@@ -1,19 +1,25 @@
 import type { NextPage } from "next";
-import { Calendar, Col, Row, Space, Tabs, Typography } from "antd";
+import { Button, Calendar, Col, Result, Row, Space, Tabs, Typography } from "antd";
 import Layout from "../components/AppLayout";
 import { BookingForm } from "../components/BookingForm";
 import { TripDescription } from "../components/common/TripDescription";
 import { FormValues } from "../types/BookingForm";
-import { createBooking, createClient, createTrip, getBookingsByDate } from "../helpers/apiHandler";
-import { useEffect, useState } from "react";
+import { createBooking, createClient, createTrip, getBookingsByDate, getBookingsByMonth } from "../helpers/apiHandler";
+import { ReactNode, useEffect, useState } from "react";
 import { Spin } from "antd";
-const { TabPane } = Tabs;
 import moment, { Moment } from "moment";
+const { TabPane } = Tabs;
+const { Title } = Typography;
 
 const Home: NextPage = () => {
 	const [apiState, setApiState] = useState<"idle" | "inProgress" | "success" | "error">("idle");
 	const [selectedDate, setSelectedDate] = useState<Moment>(moment());
 	const [activeBookings, setActiveBookings] = useState<StrapiResponseData<Booking>[]>();
+	const [monthlyBookings, setMonthlyBookings] = useState<StrapiResponseData<Booking>[]>();
+	const [dateRange, setDateRange] = useState([
+		moment().startOf("month").format("YYYY-MM-DD"),
+		moment().endOf("month").format("YYYY-MM-DD"),
+	]);
 
 	const fetchBookingsByDate = async (date: Moment) => {
 		setSelectedDate(date);
@@ -24,22 +30,16 @@ const Home: NextPage = () => {
 	};
 
 	const onPanelChange = (value: any, mode: any) => {
-		console.log("DATE CHANGE VALUE", value);
-		console.log("DATE CHANGE MODE", mode);
 		fetchBookingsByDate(value);
 	};
 
 	const handleDateChange = (value: Moment) => {
-		console.log("DATE CHANGE VALUE", value);
 		fetchBookingsByDate(value);
 	};
 
-	const onTabChange = (event: any) => {
-		console.log("THE CHANGE EVENT ON TAB", event);
-	};
+	const onTabChange = (event: any) => {};
 
 	const handleBookingForm = async (formValues: FormValues) => {
-		console.log("THE POST BODY RECEIVED IS", formValues);
 		setApiState("inProgress");
 		try {
 			const {
@@ -52,11 +52,6 @@ const Home: NextPage = () => {
 					data: { id: clientId, attributes: client },
 				},
 			} = await createClient(formValues);
-			// const {
-			// 	data: {
-			// 		data: { id: bookingId, attributes: booking },
-			// 	},
-			// } =
 			await createBooking(formValues, tripId, clientId);
 			setApiState("success");
 		} catch (error) {
@@ -64,15 +59,19 @@ const Home: NextPage = () => {
 		}
 	};
 
+	const dateCellRender = (date: Moment): ReactNode => {
+		return <span className="calendarBooking" />;
+	};
+
 	useEffect(() => {
 		const fetchBookings = async () => {
 			const { data } = await getBookingsByDate(selectedDate);
+			const { data: monthlyBooking } = await getBookingsByMonth(dateRange);
 			setActiveBookings(data.data);
+			setMonthlyBookings(monthlyBooking.data);
 		};
 		fetchBookings();
-	}, [selectedDate]);
-
-	console.log("THE CURRENT DATA FETCHED FOR DATE BOOKING", activeBookings);
+	}, [selectedDate, dateRange]);
 
 	return (
 		<Layout>
@@ -85,6 +84,8 @@ const Home: NextPage = () => {
 							fullscreen={false}
 							onChange={handleDateChange}
 							onPanelChange={onPanelChange}
+							dateCellRender={dateCellRender}
+							mode="month"
 						/>
 					</Col>
 					<Col span={12}>
@@ -97,19 +98,29 @@ const Home: NextPage = () => {
 										</TabPane>
 									);
 								})}
-							{/* <TabPane tab="Tab 2" key="2">
-								<TripDescription />
-							</TabPane>
-							<TabPane tab="Tab 3" key="3">
-								<TripDescription />
-							</TabPane> */}
 						</Tabs>
 					</Col>
 				</Row>
 				<>
-					<Typography>Feed</Typography>
+					<Title level={4}>Feed</Title>
 					{apiState !== "success" && <BookingForm onFormSubmit={handleBookingForm} />}
-					{apiState === "success" && <p>Created a booking</p>}
+					{apiState === "success" && (
+						<Result
+							status="success"
+							title="The booking has been created successfully"
+							extra={
+								<Button
+									onClick={() => {
+										setApiState("idle");
+									}}
+									type="primary"
+									key="console"
+								>
+									Create New
+								</Button>
+							}
+						/>
+					)}
 					{apiState === "inProgress" && <Spin size="large" />}
 				</>
 			</Space>
