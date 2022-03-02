@@ -1,43 +1,107 @@
-import { DatePicker, Input, Row, Space, Table } from "antd";
+import { Button, DatePicker, Input, Row, Space, Table } from "antd";
 import axios, { AxiosResponse } from "axios";
 import { GetServerSideProps, InferGetServerSidePropsType, NextPageContext } from "next";
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState } from "react";
 import AppLayout from "../components/AppLayout";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { CustomModal, confirm } from "../components/common/CustomModal";
+import { ClientForm } from "../components/common/ClientForm";
+import { API_URL, fetchClients } from "../helpers/apiHandler";
 const { Search } = Input;
 
-const columns = [
-	{ title: "ID", dataIndex: "id", key: "id" },
-	{ title: "Name", dataIndex: ["attributes", "name"], key: "name" },
-	{ title: "Address", dataIndex: ["attributes", "address"], key: "address" },
-	{ title: "Contact", dataIndex: ["attributes", "contact"], key: "contact" },
-	{ title: "Bill No", dataIndex: ["attributes", "billNumber"], key: "billNumber" },
-	{
-		title: "Action",
-		key: "action",
-		render: (text: string, record: any) => (
-			<Space size="middle">
-				<a>Invite</a>
-				<a>Delete</a>
-			</Space>
-		),
-	},
-];
-
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
+type PopUpType = "edit" | "delete";
 
 const Client: FunctionComponent<NextProps> = (props) => {
-	const { clients } = props;
-	const { data } = clients;
-	console.log("CLIENTS AS PROPS", data);
+	const { clients: preFetchedClients } = props;
+	const { data } = preFetchedClients;
+	const [showEditPopUp, setShowEditPopUp] = useState(false);
+	const [activeItem, setActiveItem] = useState<StrapiResponseData<Client>>();
+	const [isLoading, setIsLoading] = useState(false);
+	const [clients, setClients] = useState(data);
+
+	const handleCancel = () => {
+		setShowEditPopUp(false);
+	};
+
+	const handleFormSubmit = async (values: Client) => {
+		// TODO: Find the id and update the record
+		setIsLoading(true);
+		const url = `${API_URL}/clients/1`;
+		await axios.put(url, {
+			data: values,
+		});
+		setIsLoading(false);
+		setShowEditPopUp(false);
+		const {
+			data: { data },
+		} = await fetchClients();
+		setClients(data);
+	};
+
+	const handleConfirmation = (id: number) => {
+		console.log(" ********** DELETE THE ITEM ********** ", activeItem?.id, id);
+	};
+
+	const columns = [
+		{ title: "ID", dataIndex: "id", key: "id" },
+		{ title: "Name", dataIndex: ["attributes", "name"], key: "name" },
+		{ title: "Address", dataIndex: ["attributes", "address"], key: "address" },
+		{ title: "Contact", dataIndex: ["attributes", "contact"], key: "contact" },
+		{
+			title: "Action",
+			key: "action",
+			render: (record: StrapiResponseData<Client>) => {
+				return (
+					<Space size="middle">
+						<Button
+							onClick={() => {
+								setActiveItem(record);
+								setShowEditPopUp(!showEditPopUp);
+							}}
+							style={{ outline: "none", border: "none" }}
+						>
+							<EditOutlined />
+						</Button>
+						<Button
+							onClick={() => {
+								setActiveItem(record);
+								confirm(() => handleConfirmation(record.id), handleCancel);
+							}}
+							style={{ outline: "none", border: "none" }}
+						>
+							<DeleteOutlined />
+						</Button>
+					</Space>
+				);
+			},
+		},
+	];
 
 	return (
 		<AppLayout>
+			<CustomModal
+				title="Client"
+				isVisible={showEditPopUp}
+				handleCancel={handleCancel}
+				handleSubmit={() => console.log("SUBMIT WAS CLICKED")}
+				isLoading={isLoading}
+			>
+				<ClientForm
+					initialValues={{
+						name: activeItem?.attributes.name ?? "",
+						contact: activeItem?.attributes.contact ?? "",
+						address: activeItem?.attributes.address ?? "",
+					}}
+					handleFormSubmit={handleFormSubmit}
+					handleReset={handleCancel}
+				/>
+			</CustomModal>
 			<Row gutter={8} justify="space-between">
 				<Search style={{ width: "40%" }} />
-				<DatePicker />
 			</Row>
 			<Row style={{ marginTop: "2em" }} gutter={8}>
-				<Table style={{ width: "100%", minHeight: "700px" }} columns={columns} dataSource={data} />
+				<Table style={{ width: "100%", minHeight: "700px" }} columns={columns} dataSource={clients} />
 			</Row>
 		</AppLayout>
 	);
@@ -51,8 +115,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 			publicationState: "preview",
 		},
 	});
-
-	console.log("THE CLIENT RESPONSE VIA API", data);
 
 	return {
 		props: {
