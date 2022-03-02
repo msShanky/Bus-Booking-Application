@@ -62,7 +62,6 @@ const Home: NextPage = () => {
 	};
 
 	const dateCellRender = (date: Moment): ReactNode => {
-		console.log("THE DATE VALUE IS");
 		const cellDate = date.format("YYYY-MM-DD");
 		return availableBookings.includes(cellDate) && <span className="calendarBooking" />;
 	};
@@ -73,13 +72,10 @@ const Home: NextPage = () => {
 			const { data: monthlyBooking } = await getBookingsByMonth(dateRange);
 			setActiveBookings(data.data);
 			setMonthlyBookings(monthlyBooking.data);
-			console.log("MONTHLY BOOKING", monthlyBooking.data);
 			setMonthlyAvailableBookings(getMonthlyTripDates(monthlyBooking.data));
 		};
 		fetchBookings();
 	}, [selectedDate, dateRange]);
-
-	console.log("THE MONTHLY BOOKINGS", monthlyBookings);
 
 	return (
 		<Layout>
