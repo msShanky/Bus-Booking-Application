@@ -27,7 +27,7 @@ const Client: FunctionComponent<NextProps> = (props) => {
 	const handleFormSubmit = async (values: Client) => {
 		// TODO: Find the id and update the record
 		setIsLoading(true);
-		const url = `${API_URL}/clients/1`;
+		const url = `${API_URL}/clients/${activeItem?.id}`;
 		await axios.put(url, {
 			data: values,
 		});
