@@ -18,8 +18,6 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 	const [activeItem, setActiveItem] = useState<StrapiResponseData<Booking>>();
 	const [isLoading, setIsLoading] = useState(false);
 
-	console.log("BOOKINGS FETCHED ARE", bookings);
-
 	const handleConfirmation = (activeId: number) => {
 		console.log(" ********** DELETE THE ITEM ********** ", activeId);
 	};
@@ -40,7 +38,6 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 			title: "Trip",
 			key: "place",
 			render: (record: StrapiResponseData<Booking>) => {
-				console.log("RECORD RECEIVED FOR EACH ROW IS", record);
 				const { attributes } = record;
 				const { trip } = attributes;
 				return (
@@ -104,21 +101,9 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-	const API_URL = process.env.API_URL || "https://bus-booking-cms.herokuapp.com/api";
-	console.log("API URL FOR FETCHING BOOKINGS ", API_URL);
 	const {
 		data: { data },
 	} = await fetchBookings();
-	// const {
-	// 	data: { data },
-	// } = await axios.get<AxiosResponse<StrapiResponseType<Booking>>>(`${API_URL}/bookings`, {
-	// 	params: {
-	// 		populate: "*",
-	// 	},
-	// });
-
-	console.log("THE BUS RESPONSE VIA API", data);
-
 	return {
 		props: {
 			bookings: data,

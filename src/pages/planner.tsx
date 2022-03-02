@@ -20,12 +20,11 @@ const Planner = () => {
 	const dateCellRender = (cellDate: Moment) => {
 		const cellDateFormatted = cellDate.format("YYYY-MM-DD");
 		const isAvailable = availableBookings.includes(cellDateFormatted);
-		console.log("THE AVAILABLE INDEX IS", isAvailable);
+
 		const currentDateBookings = monthlyBookings?.filter((booking) => {
 			const tripDate = booking.attributes.trip?.data.attributes.tripDate;
 			return tripDate === cellDateFormatted;
 		});
-		console.log("CURRENT DATE BOOKINGS ", currentDateBookings);
 		return (
 			isAvailable && (
 				<ul className="dailyBookings">
