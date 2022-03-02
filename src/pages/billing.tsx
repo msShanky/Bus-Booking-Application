@@ -29,15 +29,8 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 	};
 
 	const handleFormSubmit = async (formValues: InvoiceFormType) => {
-		// const {} = await axios.post();
-		// TODO: Get the booking id
-		// TODO: Get the trip id
-		// TODO: Get the client id
-		// TODO: Create the post body for the invoice creation
-		console.log("FORM VALUES", formValues);
-		console.log("THE ACTIVE ITEM", activeItem);
-
-		const results = await createInvoice(formValues, activeItem as StrapiResponseData<Booking>);
+		await createInvoice(formValues, activeItem as StrapiResponseData<Booking>);
+		await fetchBookings();
 	};
 
 	const columns = [
