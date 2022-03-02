@@ -96,3 +96,21 @@ type ClientCreationResponse = {
 		};
 	};
 };
+
+type BookingMonthlyRecord = {
+	id: number;
+	attributes: {
+		trip: {
+			data: {
+				id: number;
+				attributes: {
+					tripDate: string;
+				};
+			};
+		};
+	};
+};
+
+type MonthlyBookingDates = {
+	data: Array<BookingMonthlyRecord>;
+};
