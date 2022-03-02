@@ -6,11 +6,10 @@ import AppLayout from "../components/AppLayout";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { CustomModal, confirm } from "../components/common/CustomModal";
 import { ClientForm } from "../components/common/ClientForm";
-import { API_URL, fetchClients } from "../helpers/apiHandler";
+import { API_URL, fetchClients, deleteClient } from "../helpers/apiHandler";
 const { Search } = Input;
 
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
-type PopUpType = "edit" | "delete";
 
 const Client: FunctionComponent<NextProps> = (props) => {
 	const { clients: preFetchedClients } = props;
@@ -25,9 +24,8 @@ const Client: FunctionComponent<NextProps> = (props) => {
 	};
 
 	const handleFormSubmit = async (values: Client) => {
-		// TODO: Find the id and update the record
 		setIsLoading(true);
-		const url = `${API_URL}/clients/1`;
+		const url = `${API_URL}/clients/${activeItem?.id}`;
 		await axios.put(url, {
 			data: values,
 		});
@@ -39,8 +37,9 @@ const Client: FunctionComponent<NextProps> = (props) => {
 		setClients(data);
 	};
 
-	const handleConfirmation = (id: number) => {
+	const handleConfirmation = async (id: number) => {
 		console.log(" ********** DELETE THE ITEM ********** ", activeItem?.id, id);
+		await deleteClient(id);
 	};
 
 	const columns = [

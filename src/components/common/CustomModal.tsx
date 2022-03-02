@@ -34,10 +34,10 @@ export const confirm = (handleConfirmation: FunctionType, handleCancel: Function
 	return Modal.confirm({
 		title: "Client Delete",
 		icon: <ExclamationCircleOutlined />,
-		content: "Do you want to delete this client?",
+		content: "Cannot Delete this item, please try again later",
 		okText: "Confirm",
 		cancelText: "Cancel",
-		onOk: handleConfirmation,
-		onCancel: handleCancel,
+		// onOk: handleConfirmation,
+		// onCancel: handleCancel,
 	});
 };
