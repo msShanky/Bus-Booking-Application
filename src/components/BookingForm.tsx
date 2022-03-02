@@ -30,7 +30,7 @@ const prefixSelector = (
 export const BookingForm: FunctionComponent<BookingFormProps> = ({ onFormSubmit }) => {
 	const [form] = Form.useForm<FormValues>();
 
-	const onFinish = (values: FormValues) => {		
+	const onFinish = (values: FormValues) => {
 		onFormSubmit(values);
 	};
 

@@ -42,6 +42,7 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 			form={form}
 			onFinish={onFinish}
 			onReset={handleReset}
+			style={{ width: "80%" }}
 		>
 			<Form.Item
 				name="busNumber"
