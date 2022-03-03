@@ -1,11 +1,12 @@
 import { Button, Form, Input, InputNumber, Row, Space } from "antd";
 
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect } from "react";
 
 type ClientFormProps = {
-	initialValues: Client;
+	initialValues?: ClientPostBody;
 	handleFormSubmit: (formData: Client) => void;
 	handleReset: () => void;
+	isCreateNewForm: boolean;
 };
 
 const formItemLayout = {
@@ -20,12 +21,14 @@ const formItemLayout = {
 };
 
 export const ClientForm: FunctionComponent<ClientFormProps> = (props) => {
-	const { initialValues, handleFormSubmit, handleReset } = props;
+	const { initialValues, handleFormSubmit, handleReset, isCreateNewForm } = props;
 	const [form] = Form.useForm<Client>();
 
 	const onFinish = (values: Client) => {
 		handleFormSubmit(values);
 	};
+
+	useEffect(() => form.resetFields(), [initialValues, form]);
 
 	return (
 		<Form
@@ -35,7 +38,7 @@ export const ClientForm: FunctionComponent<ClientFormProps> = (props) => {
 			name="clientForm"
 			form={form}
 			onFinish={onFinish}
-      onReset={handleReset}
+			onReset={handleReset}
 			style={{ width: "80%" }}
 		>
 			<Form.Item name="name" label="Name" rules={[{ required: true, message: "Please enter the client name!" }]}>
@@ -51,10 +54,17 @@ export const ClientForm: FunctionComponent<ClientFormProps> = (props) => {
 			>
 				<InputNumber style={{ width: "100%" }} />
 			</Form.Item>
+			<Form.Item
+				name="booking"
+				label="Booking ID"
+				rules={[{ required: true, message: "Please enter a valid booking ID" }]}
+			>
+				<InputNumber style={{ width: "100%" }} />
+			</Form.Item>
 			<Row justify="end">
 				<Space align="center" size={8}>
 					<Button type="primary" htmlType="submit">
-						Update
+						{isCreateNewForm ? "Create" : "Update"}
 					</Button>
 					<Button type="primary" danger htmlType="reset">
 						Cancel

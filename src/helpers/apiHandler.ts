@@ -1,8 +1,7 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosRequestHeaders, AxiosResponse } from "axios";
 import moment, { Moment } from "moment";
 import { FormValues } from "../types/BookingForm";
 import qs from "qs";
-import { InvoiceFormType } from "../components/common/InvoiceForm";
 // const {
 //   data: { id: tripId, attributes: trip },
 // } = await axios.post<StrapiResponse<Trip>, StrapiResponse<Trip>, StrapiPostBody<Trip>>(
@@ -25,24 +24,48 @@ export const createTrip = (formValues: FormValues) => {
 	);
 };
 
-export const createClient = (formValues: FormValues) => {
-	const { name, contact } = formValues;
+export const fetchClients = (query?: string) => {
+	return axios.get<StrapiResponseType<Client>>(`${API_URL}/clients`, {
+		params: {
+			publicationState: "preview",
+			populate: "*",
+			sort: ["id"],
+			filters: {
+				// client: {
+				name: {
+					$containsi: query,
+				},
+				// },
+			},
+		},
+		paramsSerializer: function (params) {
+			return qs.stringify(params, { arrayFormat: "brackets", encodeValuesOnly: true });
+		},
+	});
+};
+
+export const createClient = (body: Client) => {
 	return axios.post<StrapiPostResponse<Client>, AxiosResponse<StrapiPostResponse<Client>>, StrapiPostBody<Client>>(
 		`${API_URL}/clients`,
 		{
 			data: {
-				name,
-				contact,
-				address: "",
+				...body,
 			},
 		}
 	);
 };
 
-export const createBooking = (formValues: FormValues, tripId: number, clientId: number) => {
+export const updateClient = (values: Client, clientId: number) => {
+	const url = `${API_URL}/clients/${clientId}`;
+	return axios.put<StrapiPostResponse<Client>, AxiosResponse<StrapiPostResponse<Client>>>(url, {
+		data: values,
+	});
+};
+
+export const createBooking = async (formValues: FormValues, tripId: number, clientId: number) => {
 	const { advancePaid, balanceAmount, diesel, fasttag, kilometer, quotedPrice } = formValues;
 
-	return axios.post<
+	const bookingResponse = await axios.post<
 		StrapiPostResponse<Booking>,
 		AxiosResponse<StrapiPostResponse<Booking>>,
 		StrapiPostBody<BookingPostBody>
@@ -58,6 +81,7 @@ export const createBooking = (formValues: FormValues, tripId: number, clientId: 
 				quotedPrice,
 				trip: tripId,
 				client: clientId,
+				bookingState: "Booked",
 			},
 		},
 		{
@@ -66,6 +90,11 @@ export const createBooking = (formValues: FormValues, tripId: number, clientId: 
 			},
 		}
 	);
+
+	await axios.put(`${API_URL}/client/${clientId}`, {
+		booking: bookingResponse.data.data.id,
+	});
+	return bookingResponse;
 };
 
 export const getBookingsByDate = (date: Moment) => {
@@ -107,20 +136,49 @@ export const getBookingsByMonth = (dateRange: Array<string>) => {
 	});
 };
 
-export const fetchBuses = () => {
+export const fetchBuses = (query?: string) => {
 	return axios.get<StrapiResponseType<Bus>>(`${API_URL}/buses`, {
 		params: {
 			publicationState: "preview",
+			sort: "id",
+			filters: {
+				$or: [
+					{
+						busNumber: {
+							$containsi: query,
+						},
+					},
+					{
+						fc: {
+							$containsi: query,
+						},
+					},
+					{
+						rc: {
+							$containsi: query,
+						},
+					},
+					{
+						insurance: {
+							$containsi: query,
+						},
+					},
+					{
+						license: {
+							$containsi: query,
+						},
+					},
+				],
+			},
+		},
+		paramsSerializer: function (params) {
+			return qs.stringify(params, { encodeValuesOnly: true });
 		},
 	});
 };
 
-export const fetchClients = () => {
-	return axios.get<StrapiResponseType<Client>>(`${API_URL}/clients`, {
-		params: {
-			publicationState: "preview",
-		},
-	});
+export const createBus = (body: BusPostBody) => {
+	return axios.post(`${API_URL}/buses`, { data: { ...body } });
 };
 
 export const fetchBookings = () => {
@@ -128,13 +186,32 @@ export const fetchBookings = () => {
 		params: {
 			publicationState: "preview",
 			populate: "*",
+			sort: ["id"],
 		},
 	});
 };
 
-export const createInvoice = (formValues: InvoiceFormType, activeItem: StrapiResponseData<Booking>) => {
-	console.log("THE POST BODY RECEIVED IS", formValues);
+export const fetchBookingsWithQuery = (query: string) => {
+	return axios.get<StrapiResponseType<Booking>>(`${API_URL}/bookings`, {
+		params: {
+			publicationState: "preview",
+			populate: "*",
+			sort: ["id"],
+			filters: {
+				client: {
+					name: {
+						$containsi: query,
+					},
+				},
+			},
+		},
+		paramsSerializer: function (params) {
+			return qs.stringify(params, { arrayFormat: "brackets", encodeValuesOnly: true });
+		},
+	});
+};
 
+export const createInvoice = async (formValues: InvoiceFormType, activeItem: StrapiResponseData<Booking>) => {
 	const { attributes, id } = activeItem;
 	const { invoice } = formValues;
 
@@ -152,14 +229,47 @@ export const createInvoice = (formValues: InvoiceFormType, activeItem: StrapiRes
 		},
 	};
 
-	return axios.post<StrapiPostResponse<Invoice>>(`${API_URL}/invoices`, postBody, {
+	const invoiceResponse = await axios.post<StrapiPostResponse<Invoice>>(`${API_URL}/invoices`, postBody, {
 		params: {
 			publicationState: "preview",
 			populate: "*",
 		},
 	});
+
+	const {
+		data: {
+			data: { id: invoiceId },
+		},
+	} = invoiceResponse;
+
+	// Update the invoice id to the booking
+	await axios.put(`${API_URL}/bookings/${id}`, {
+		data: {
+			invoice: invoiceId,
+			bookingState: "Invoiced",
+		},
+	});
+
+	return invoiceResponse;
+};
+
+export const updateInvoice = async (formValues: InvoiceFormType, activeItem: StrapiResponseData<Booking>) => {
+	const invoiceId = activeItem.attributes.invoice?.data.id;
+	const bookingId = activeItem.id;
+	await axios.put<StrapiPostResponse<Booking>>(`${API_URL}/bookings/${bookingId}`, {
+		data: {
+			invoice: invoiceId,
+			bookingState: formValues.bookingState,
+		},
+	});
+	return axios.put<StrapiPostResponse<Invoice>>(`${API_URL}/invoices/${invoiceId}`, {
+		data: { ...formValues.invoice },
+	});
 };
 
 export const deleteClient = (id: number) => {
-	return axios.delete(`${API_URL}/clients/${id}`);
+	// return axios.delete(`${API_URL}/clients/${id}`);
+	console.log("--- DELETING CLIENT ---", id);
 };
+
+// export const createClient = () => {};

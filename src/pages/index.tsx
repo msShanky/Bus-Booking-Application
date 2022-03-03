@@ -8,12 +8,12 @@ import { createBooking, createClient, createTrip, getBookingsByDate, getBookings
 import { ReactNode, useEffect, useState } from "react";
 import { Spin } from "antd";
 import moment, { Moment } from "moment";
-import { getMonthlyTripDates } from "../helpers/dataFormatter";
+import { getClientInfo, getMonthlyTripDates } from "../helpers/dataFormatter";
 const { TabPane } = Tabs;
 const { Title } = Typography;
 
 const Home: NextPage = () => {
-	const [apiState, setApiState] = useState<"idle" | "inProgress" | "success" | "error">("idle");
+	const [apiState, setApiState] = useState<ApiState>("idle");
 	const [selectedDate, setSelectedDate] = useState<Moment>(moment());
 	const [activeBookings, setActiveBookings] = useState<StrapiResponseData<Booking>[]>();
 	const [monthlyBookings, setMonthlyBookings] = useState<StrapiResponseData<Booking>[]>();
@@ -53,7 +53,7 @@ const Home: NextPage = () => {
 				data: {
 					data: { id: clientId, attributes: client },
 				},
-			} = await createClient(formValues);
+			} = await createClient(getClientInfo(formValues));
 			await createBooking(formValues, tripId, clientId);
 			setApiState("success");
 		} catch (error) {
