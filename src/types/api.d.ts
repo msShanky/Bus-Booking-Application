@@ -22,7 +22,7 @@ type StrapiResponseType<T> = {
 };
 
 type StrapiPostResponse<T> = {
-	data: StrapiResponseData;
+	data: StrapiResponseData<T>;
 	meta: Meta;
 };
 
@@ -38,10 +38,19 @@ type Bus = {
 	trip?: Trip;
 };
 
+type BusPostBody = Omit<Bus, "trip"> & {
+	trip: number;
+};
+
 type Client = {
 	name: string;
 	address: string;
 	contact: string;
+	booking?: StrapiResponseData<Booking>;
+};
+
+type ClientPostBody = Omit<Client, "booking"> & {
+	booking: number | undefined;
 };
 
 type Trip = {
@@ -51,9 +60,12 @@ type Trip = {
 	tripDate: string;
 };
 
+type BookingState = "Booked" | "Invoiced" | "InTransit";
+
 type BookingPostBody = Omit<Booking, "client" | "trip"> & {
 	client: number;
 	trip: number;
+	bookingState: BookingState;
 };
 
 type Booking = {
@@ -63,11 +75,15 @@ type Booking = {
 	quotedPrice: number;
 	advancePaid: number;
 	balanceAmount: number;
+	bookingState: BookingState;
 	client?: {
 		data: StrapiResponseData<Client>;
 	};
 	trip?: {
 		data: StrapiResponseData<Trip>;
+	};
+	invoice?: {
+		data: StrapiResponseData<Invoice>;
 	};
 };
 
@@ -113,4 +129,32 @@ type BookingMonthlyRecord = {
 
 type MonthlyBookingDates = {
 	data: Array<BookingMonthlyRecord>;
+};
+
+type ApiState = "idle" | "inProgress" | "success" | "error";
+
+type InvoiceFormType = {
+	bookingState: BookingState;
+	client: Partial<Client>;
+	trip: {
+		source: string;
+		destination: string;
+		tripDate: Moment;
+		pickupTime: Moment;
+	};
+	estimated: {
+		kilometer: number;
+		diesel: number;
+		fasttag: number;
+		quotedPrice: number;
+		advancePaid: number;
+		balanceAmount: number;
+	};
+	invoice: {
+		kilometer: number;
+		diesel: number;
+		dieselCost: number;
+		milage: number;
+		totalAmount: number;
+	};
 };

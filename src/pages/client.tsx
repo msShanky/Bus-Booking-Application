@@ -6,39 +6,50 @@ import AppLayout from "../components/AppLayout";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { CustomModal, confirm } from "../components/common/CustomModal";
 import { ClientForm } from "../components/common/ClientForm";
-import { API_URL, fetchClients, deleteClient } from "../helpers/apiHandler";
+import { API_URL, fetchClients, deleteClient, updateClient, createClient } from "../helpers/apiHandler";
 const { Search } = Input;
 
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
 const Client: FunctionComponent<NextProps> = (props) => {
 	const { clients: preFetchedClients } = props;
-	const { data } = preFetchedClients;
 	const [showEditPopUp, setShowEditPopUp] = useState(false);
 	const [activeItem, setActiveItem] = useState<StrapiResponseData<Client>>();
 	const [isLoading, setIsLoading] = useState(false);
-	const [clients, setClients] = useState(data);
+	const [clients, setClients] = useState(preFetchedClients);
+	const [isCreateForm, setIsCreateForm] = useState<boolean>();
 
 	const handleCancel = () => {
 		setShowEditPopUp(false);
+		setActiveItem(undefined);
+	};
+
+	const handleClientFetch = async (queryValue?: string) => {
+		const {
+			data: { data },
+		} = await fetchClients(queryValue);
+		setClients(data);
+	};
+
+	const onSearch = async (value: string) => {
+		setIsLoading(true);
+		handleClientFetch(value);
+		setIsLoading(false);
 	};
 
 	const handleFormSubmit = async (values: Client) => {
 		setIsLoading(true);
-		const url = `${API_URL}/clients/${activeItem?.id}`;
-		await axios.put(url, {
-			data: values,
-		});
-		setIsLoading(false);
+		if (isCreateForm) {
+			await createClient(values);
+		} else {
+			await updateClient(values, activeItem?.id as number);
+		}
 		setShowEditPopUp(false);
-		const {
-			data: { data },
-		} = await fetchClients();
-		setClients(data);
+		handleClientFetch();
+		setIsLoading(false);
 	};
 
 	const handleConfirmation = async (id: number) => {
-		console.log(" ********** DELETE THE ITEM ********** ", activeItem?.id, id);
 		await deleteClient(id);
 	};
 
@@ -47,6 +58,7 @@ const Client: FunctionComponent<NextProps> = (props) => {
 		{ title: "Name", dataIndex: ["attributes", "name"], key: "name" },
 		{ title: "Address", dataIndex: ["attributes", "address"], key: "address" },
 		{ title: "Contact", dataIndex: ["attributes", "contact"], key: "contact" },
+		{ title: "Booking ID", dataIndex: ["attributes", "booking", "data", "id"], key: "contact" },
 		{
 			title: "Action",
 			key: "action",
@@ -57,6 +69,7 @@ const Client: FunctionComponent<NextProps> = (props) => {
 							onClick={() => {
 								setActiveItem(record);
 								setShowEditPopUp(!showEditPopUp);
+								setIsCreateForm(false);
 							}}
 							style={{ outline: "none", border: "none" }}
 						>
@@ -87,33 +100,48 @@ const Client: FunctionComponent<NextProps> = (props) => {
 				isLoading={isLoading}
 			>
 				<ClientForm
+					isCreateNewForm={isCreateForm as boolean}
 					initialValues={{
 						name: activeItem?.attributes.name ?? "",
 						contact: activeItem?.attributes.contact ?? "",
 						address: activeItem?.attributes.address ?? "",
+						booking: undefined,
 					}}
 					handleFormSubmit={handleFormSubmit}
 					handleReset={handleCancel}
 				/>
 			</CustomModal>
 			<Row gutter={8} justify="space-between">
-				<Search style={{ width: "40%" }} />
+				<Search allowClear enterButton onSearch={onSearch} style={{ width: "40%" }} />
+				<Button
+					onClick={() => {
+						setIsCreateForm(true);
+						setShowEditPopUp(true);
+					}}
+					type="primary"
+				>
+					Create New
+				</Button>
 			</Row>
 			<Row style={{ marginTop: "2em" }} gutter={8}>
-				<Table style={{ width: "100%", minHeight: "700px" }} columns={columns} dataSource={clients} />
+				<Table
+					loading={isLoading}
+					style={{ width: "100%", minHeight: "700px" }}
+					columns={columns}
+					dataSource={clients}
+				/>
 			</Row>
+			{/* <Row>
+				<ClientForm handleFormSubmit={() => console.log("HANDLE FORM CREATE")} handleReset={handleCancel} />
+			</Row> */}
 		</AppLayout>
 	);
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-	const API_URL = process.env.API_URL || "https://bus-booking-cms.herokuapp.com/api";
-	const { data } = await axios.get<AxiosResponse<StrapiResponseType<Client>>>(`${API_URL}/clients`, {
-		params: {
-			populate: "*",
-			publicationState: "preview",
-		},
-	});
+	const {
+		data: { data },
+	} = await fetchClients();
 
 	return {
 		props: {

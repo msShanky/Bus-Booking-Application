@@ -1,22 +1,23 @@
 import React, { FunctionComponent, useState } from "react";
 import AppLayout from "../components/AppLayout";
-import { Button, DatePicker, Input, Row, Space, Table, Typography } from "antd";
+import { Button, Input, Row, Space, Table, Typography } from "antd";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import axios, { AxiosResponse } from "axios";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { CustomModal, confirm } from "../components/common/CustomModal";
-import { InvoiceForm, InvoiceFormType } from "../components/common/InvoiceForm";
-import { createInvoice, fetchBookings } from "../helpers/apiHandler";
+import { InvoiceForm } from "../components/common/InvoiceForm";
+import { createInvoice, fetchBookings, fetchBookingsWithQuery, updateInvoice } from "../helpers/apiHandler";
 const { Search } = Input;
 
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
 const Billing: FunctionComponent<NextProps> = (props) => {
 	const { bookings: preFetchedBookings } = props;
-	const [bookings, setBooking] = useState(preFetchedBookings);
+	const [bookings, setBookings] = useState(preFetchedBookings);
 	const [showEditPopUp, setShowEditPopUp] = useState(false);
 	const [activeItem, setActiveItem] = useState<StrapiResponseData<Booking>>();
 	const [isLoading, setIsLoading] = useState(false);
+	const [apiState, setApiState] = useState<ApiState>("idle");
+	const [searchValue, setSearchValue] = useState<string>();
 
 	const handleConfirmation = (activeId: number) => {
 		console.log(" ********** DELETE THE ITEM ********** ", activeId);
@@ -24,11 +25,52 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 
 	const handleCancel = () => {
 		setShowEditPopUp(false);
+		setActiveItem(undefined);
+	};
+
+	const afterSuccessUpdates = async () => {
+		const {
+			data: { data },
+		} = await fetchBookings();
+		setBookings(data);
+		setApiState("success");
+		handleCancel();
+	};
+
+	const onSearch = async (value: string) => {
+		setApiState("inProgress");
+		try {
+			const {
+				data: { data },
+			} = await fetchBookingsWithQuery(value);
+			setBookings(data);
+			setApiState("success");
+		} catch (error) {
+			setApiState("error");
+		}
 	};
 
 	const handleFormSubmit = async (formValues: InvoiceFormType) => {
-		await createInvoice(formValues, activeItem as StrapiResponseData<Booking>);
-		await fetchBookings();
+		const isInvoiced = activeItem?.attributes.bookingState === "Invoiced";
+		setApiState("inProgress");
+		if (isInvoiced) {
+			try {
+				await updateInvoice(formValues, activeItem as StrapiResponseData<Booking>);
+				afterSuccessUpdates();
+			} catch (error) {
+				setApiState("error");
+				handleCancel();
+			}
+			return;
+		}
+
+		try {
+			await createInvoice(formValues, activeItem as StrapiResponseData<Booking>);
+			afterSuccessUpdates();
+		} catch (error) {
+			setApiState("error");
+			handleCancel();
+		}
 	};
 
 	const columns = [
@@ -48,29 +90,32 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 			},
 		},
 		{ title: "KM", dataIndex: ["attributes", "kilometer"], key: "contact" },
-		{ title: "Quoted Price", dataIndex: "id", key: "quotedPrice" },
+		{ title: "Quoted Price", dataIndex: ["attributes", "quotedPrice"], key: "quotedPrice" },
+		{ title: "Billing Status", dataIndex: ["attributes", "bookingState"], key: "bookingState" },
 		{
 			title: "Action",
 			key: "action",
-			render: (record: StrapiResponseData<Booking>) => (
-				<Space size="middle">
-					<Button
-						onClick={() => {
-							setActiveItem(record);
-							setShowEditPopUp(!showEditPopUp);
-						}}
-						style={{ outline: "none", border: "none" }}
-					>
-						<EditOutlined />
-					</Button>
-					<Button
-						onClick={() => confirm(() => handleConfirmation(record.id), handleCancel)}
-						style={{ outline: "none", border: "none" }}
-					>
-						<DeleteOutlined />
-					</Button>
-				</Space>
-			),
+			render: (record: StrapiResponseData<Booking>) => {
+				return (
+					<Space size="middle">
+						<Button
+							onClick={() => {
+								setActiveItem(record);
+								setShowEditPopUp(!showEditPopUp);
+							}}
+							style={{ outline: "none", border: "none" }}
+						>
+							<EditOutlined />
+						</Button>
+						<Button
+							onClick={() => confirm(() => handleConfirmation(record.id), handleCancel)}
+							style={{ outline: "none", border: "none" }}
+						>
+							<DeleteOutlined />
+						</Button>
+					</Space>
+				);
+			},
 		},
 	];
 
@@ -88,13 +133,19 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 					initialValues={activeItem as StrapiResponseData<Booking>}
 					handleFormSubmit={handleFormSubmit}
 					handleReset={handleCancel}
+					apiState={apiState}
 				/>
 			</CustomModal>
 			<Row gutter={8} justify="space-between">
-				<Search style={{ width: "40%" }} />
+				<Search allowClear onSearch={onSearch} style={{ width: "40%" }} />
 			</Row>
 			<Row style={{ marginTop: "2em" }} gutter={8}>
-				<Table style={{ width: "100%", minHeight: "700px" }} columns={columns} dataSource={bookings} />
+				<Table
+					loading={apiState === "inProgress"}
+					style={{ width: "100%", minHeight: "700px" }}
+					columns={columns}
+					dataSource={bookings}
+				/>
 			</Row>
 		</AppLayout>
 	);
@@ -104,6 +155,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	const {
 		data: { data },
 	} = await fetchBookings();
+
 	return {
 		props: {
 			bookings: data,

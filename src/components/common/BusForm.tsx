@@ -1,12 +1,13 @@
 import { Button, DatePicker, Form, Input, InputNumber, Row, Space } from "antd";
 import moment from "moment";
 
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect } from "react";
 
 type ClientFormProps = {
-	initialValues: StrapiResponseData<Bus>;
-	handleFormSubmit: (formData: Bus) => void;
+	initialValues?: StrapiResponseData<Bus>;
+	handleFormSubmit: (formData: BusPostBody) => void;
 	handleReset: () => void;
+	isCreateForm: boolean;
 };
 
 const formItemLayout = {
@@ -21,17 +22,18 @@ const formItemLayout = {
 };
 
 export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
-	const { initialValues, handleFormSubmit, handleReset } = props;
-	const [form] = Form.useForm<Bus>();
+	const { initialValues, handleFormSubmit, handleReset, isCreateForm } = props;
+	const [form] = Form.useForm<BusPostBody>();
 
-	const onFinish = (values: Bus) => {
+	const onFinish = (values: BusPostBody) => {
 		handleFormSubmit({ ...values, insuranceExpiry: moment(values.insuranceExpiry).format("YYYY-MM-DD") });
 	};
 
-	const { attributes } = initialValues;
-	const { insuranceExpiry } = attributes;
-
-	const formattedInitialValues = { ...attributes, insuranceExpiry: moment(insuranceExpiry) };
+	useEffect(() => form.resetFields(), [initialValues, form]);
+	const formattedInitialValues = {
+		...initialValues?.attributes,
+		insuranceExpiry: initialValues?.attributes && moment(initialValues?.attributes.insuranceExpiry),
+	};
 
 	return (
 		<Form
@@ -49,20 +51,20 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 				label="Bus Number"
 				rules={[{ required: true, message: "Please enter the bus number!" }]}
 			>
-				<Input />
+				<Input placeholder="Bus Number" />
 			</Form.Item>
 			<Form.Item name="rc" label="RC" rules={[{ required: true, message: "Please enter the rc details!" }]}>
-				<Input />
+				<Input placeholder="RC Information" />
 			</Form.Item>
 			<Form.Item name="fc" label="FC" rules={[{ required: true, message: "Please enter the rc details!" }]}>
-				<Input />
+				<Input placeholder="FC Information" />
 			</Form.Item>
 			<Form.Item
 				name="insurance"
 				label="Insurance"
 				rules={[{ required: true, message: "Please enter the rc details!" }]}
 			>
-				<Input />
+				<Input placeholder="Insurance Information" />
 			</Form.Item>
 			<Form.Item
 				name="insuranceExpiry"
@@ -76,12 +78,12 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 				label="License"
 				rules={[{ required: true, message: "Please enter the License details!" }]}
 			>
-				<Input />
+				<Input placeholder="License Number" />
 			</Form.Item>
 			<Row justify="end">
 				<Space align="center" size={8}>
 					<Button type="primary" htmlType="submit">
-						Update
+						{isCreateForm ? "Create" : "Update"}
 					</Button>
 					<Button type="primary" danger htmlType="reset">
 						Cancel
