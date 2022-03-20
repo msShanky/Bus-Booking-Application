@@ -1,16 +1,17 @@
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { FormValues } from "../types/BookingForm";
 
-export const getMonthlyTripDates = (response: Array<BookingMonthlyRecord>): Array<string> => {
+export const getMonthlyTripDates = (response: Array<StrapiResponseData<Booking>>): Array<string> => {
 	const dateList: Array<string> = [];
-
+	console.log("THE GIVEN INPUT IS", response);
 	response.forEach((booking) => {
-		const date = booking.attributes.trip.data.attributes.tripDate;
-		if (dateList.includes(date)) return;
-		dateList.push(date);
+		const { attributes } = booking;
+		const date = attributes.trip?.data.attributes.tripDate;
+		if (dateList.includes(date as string)) return;
+		dateList.push(date as string);
 	});
 
-	console.log("THE DATE LIST GENERATED IS", dateList);
+	console.log("THE DATA LIST IS", dateList);
 	return dateList;
 };
 
@@ -57,4 +58,8 @@ export const getClientInfo = (values: FormValues): Client => {
 		contact: values.contact,
 		address: "",
 	};
+};
+
+export const findDateRange = (date: Moment = moment()): Array<string> => {
+	return [moment(date).startOf("month").format("YYYY-MM-DD"), moment(date).endOf("month").format("YYYY-MM-DD")];
 };

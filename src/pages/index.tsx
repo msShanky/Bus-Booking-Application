@@ -8,16 +8,18 @@ import { createBooking, createClient, createTrip, getBookingsByDate, getBookings
 import { ReactNode, useEffect, useState } from "react";
 import { Spin } from "antd";
 import moment, { Moment } from "moment";
-import { getClientInfo, getMonthlyTripDates } from "../helpers/dataFormatter";
+import { findDateRange, getClientInfo, getMonthlyTripDates } from "../helpers/dataFormatter";
 const { TabPane } = Tabs;
 const { Title } = Typography;
+
+type BookingType = Array<StrapiResponseData<Booking>>;
 
 const Home: NextPage = () => {
 	const [apiState, setApiState] = useState<ApiState>("idle");
 	const [selectedDate, setSelectedDate] = useState<Moment>(moment());
 	const [activeBookings, setActiveBookings] = useState<StrapiResponseData<Booking>[]>();
-	const [monthlyBookings, setMonthlyBookings] = useState<StrapiResponseData<Booking>[]>();
-	const [availableBookings, setMonthlyAvailableBookings] = useState<Array<string>>([]);
+	const [bookings, setBookings] = useState<BookingType>([]);
+	const [availableBookings, setAvailableBookings] = useState<Array<string>>([]);
 	const [dateRange, setDateRange] = useState([
 		moment().startOf("month").format("YYYY-MM-DD"),
 		moment().endOf("month").format("YYYY-MM-DD"),
@@ -33,10 +35,12 @@ const Home: NextPage = () => {
 
 	const onPanelChange = (value: any, mode: any) => {
 		fetchBookingsByDate(value);
+		setDateRange(findDateRange(value));
 	};
 
 	const handleDateChange = (value: Moment) => {
 		fetchBookingsByDate(value);
+		setDateRange(findDateRange(value));
 	};
 
 	const onTabChange = (event: any) => {};
@@ -63,19 +67,36 @@ const Home: NextPage = () => {
 
 	const dateCellRender = (date: Moment): ReactNode => {
 		const cellDate = date.format("YYYY-MM-DD");
-		return availableBookings.includes(cellDate) && <span className="calendarBooking" />;
+		const isBooked = availableBookings.includes(cellDate);
+		// console.log("THE AVAILABLE BOOKING IS", availableBookings);
+		// console.log("THE CELL DATE", cellDate);
+		// console.log("THE VALUE FOR TRUE", isBooked);
+		return isBooked && <span className="calendarBooking" />;
+	};
+
+	const fetchBookings = async () => {
+		const { data } = await getBookingsByMonth(dateRange);
+		const { data: strapiResponse } = data;
+		const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
+		const monthlyTripDates = getMonthlyTripDates(updatedBookings);
+		console.log("THE MONTHLY TRIPS", monthlyTripDates);
+		setBookings(updatedBookings);
+		setAvailableBookings(monthlyTripDates);
 	};
 
 	useEffect(() => {
-		const fetchBookings = async () => {
-			const { data } = await getBookingsByDate(selectedDate);
-			const { data: monthlyBooking } = await getBookingsByMonth(dateRange);
-			setActiveBookings(data.data);
-			setMonthlyBookings(monthlyBooking.data);
-			setMonthlyAvailableBookings(getMonthlyTripDates(monthlyBooking.data));
-		};
 		fetchBookings();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedDate, dateRange]);
+
+	useEffect(() => {
+		console.log(" ------- LOADED THE COMPONENT  ------- ");
+		fetchBookings();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	console.log("THE BOOKINGS", bookings);
+	console.log("THE AVAILABLE BOOKINGS", availableBookings);
 
 	return (
 		<Layout>

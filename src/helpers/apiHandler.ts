@@ -116,7 +116,9 @@ export const getBookingsByDate = (date: Moment) => {
 	});
 };
 
-export const getBookingsByMonth = (dateRange: Array<string>) => {
+export const getBookingsByMonth = (
+	dateRange: Array<string>
+): Promise<AxiosResponse<StrapiResponseType<Booking>, any>> => {
 	return axios.get<Booking, AxiosResponse<StrapiResponseType<Booking>>>(`${API_URL}/bookings`, {
 		params: {
 			publicationState: "preview",

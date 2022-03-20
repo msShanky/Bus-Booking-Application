@@ -17,7 +17,7 @@ type StrapiResponseData<T> = {
 };
 
 type StrapiResponseType<T> = {
-	data: Array<StrapiResponseData>;
+	data: Array<StrapiResponseData<T>>;
 	meta: Meta;
 };
 
