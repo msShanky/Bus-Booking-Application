@@ -2,9 +2,6 @@ import axios, { AxiosRequestHeaders, AxiosResponse } from "axios";
 import moment, { Moment } from "moment";
 import { FormValues } from "../types/BookingForm";
 import qs from "qs";
-// const {
-//   data: { id: tripId, attributes: trip },
-// } = await axios.post<StrapiResponse<Trip>, StrapiResponse<Trip>, StrapiPostBody<Trip>>(
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://bus-booking-cms.herokuapp.com/api";
 
@@ -142,6 +139,7 @@ export const fetchBuses = (query?: string) => {
 	return axios.get<StrapiResponseType<Bus>>(`${API_URL}/buses`, {
 		params: {
 			publicationState: "preview",
+			populate: "*",
 			sort: "id",
 			filters: {
 				$or: [

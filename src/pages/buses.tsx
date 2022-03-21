@@ -33,10 +33,10 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 
 	const handleFormSubmit = async (values: BusPostBody) => {
 		setIsLoading(true);
-		const url = `${API_URL}/buses/1`;
 		if (isCreateForm) {
 			await createBus(values);
 		} else {
+			const url = `${API_URL}/buses/${activeItem?.id}`;			
 			await axios.put(url, {
 				data: values,
 			});
@@ -125,6 +125,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	const {
 		data: { data },
 	} = await fetchBuses();
+
 	return {
 		props: {
 			buses: data,
