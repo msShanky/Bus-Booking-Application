@@ -14,7 +14,7 @@ export const createInvoice = async (formValues: InvoiceFormType, activeItem: Str
 
 	const postBody = {
 		data: {
-			invoiceDate: moment().format("DD-MM-YYYY"),
+			invoiceDate: moment(),
 			...invoice,
 			...relations,
 		},

@@ -25,11 +25,13 @@ const formItemLayout = {
 export const InvoiceForm: FunctionComponent<InvoiceFormProps> = (props) => {
 	const [form] = Form.useForm();
 	const { initialValues, handleFormSubmit, handleReset, apiState } = props;
-	const [isInvoiced, setIsInvoiced] = useState<boolean>(initialValues.attributes.bookingState === "Invoiced");
+	const [isInvoiced, setIsInvoiced] = useState<boolean>(initialValues?.attributes?.bookingState === "Invoiced");
 
 	const onFinish = (values: InvoiceFormType) => {
 		handleFormSubmit(values);
 	};
+
+	console.log("the initial value received for invoice form", initialValues);
 
 	const values = getFormattedInitialValues(initialValues);
 
@@ -37,6 +39,10 @@ export const InvoiceForm: FunctionComponent<InvoiceFormProps> = (props) => {
 	useEffect(() => {
 		setIsInvoiced(initialValues.attributes.bookingState === "Invoiced");
 	}, [initialValues.attributes.bookingState]);
+
+	if (!initialValues) {
+		return <></>;
+	}
 
 	return (
 		<Form
@@ -167,13 +173,6 @@ export const InvoiceForm: FunctionComponent<InvoiceFormProps> = (props) => {
 					>
 						<InputNumber style={{ width: "100%" }} />
 					</Form.Item>
-					{/* <Form.Item
-						name={["invoice", "balanceAmount"]}
-						label="Balance Amount"
-						rules={[{ required: true, message: "Please enter the rc details!" }]}
-					>
-						<InputNumber style={{ width: "100%" }} />
-					</Form.Item> */}
 				</Col>
 			</Row>
 			<Row justify="end">

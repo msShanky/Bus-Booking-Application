@@ -13,11 +13,13 @@ import {
 	updateBooking,
 	deleteBooking,
 } from "../helpers/apiHandler";
-import { ReactNode, useEffect, useState } from "react";
+import { Component, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Spin } from "antd";
 import moment, { Moment } from "moment";
 import { findDateRange, getClientInfo, getMonthlyTripDates } from "../helpers/dataFormatter";
 import { CustomModal } from "../components/common/CustomModal";
+import ReactToPrint, { useReactToPrint } from "react-to-print";
+import Print from "../components/common/Print";
 const { TabPane } = Tabs;
 const { Title } = Typography;
 
@@ -36,6 +38,27 @@ const Home: NextPage = () => {
 		moment().startOf("month").format("YYYY-MM-DD"),
 		moment().endOf("month").format("YYYY-MM-DD"),
 	]);
+	const printRef = useRef<HTMLDivElement | null>(null);
+
+	const handleAfterPrint = useCallback(() => {
+		console.log("`onAfterPrint` called");
+	}, []);
+
+	const handleBeforePrint = useCallback(() => {
+		console.log("`onBeforePrint` called");
+	}, []);
+
+	const reactToPrintContent = useCallback(() => {
+		return printRef.current;
+	}, [printRef.current]);
+
+	const handlePrint = useReactToPrint({
+		content: reactToPrintContent,
+		documentTitle: "AwesomeFileName",
+		onBeforePrint: handleBeforePrint,
+		onAfterPrint: handleAfterPrint,
+		removeAfterPrint: true,
+	});
 
 	const fetchBookingsByDate = async (date = moment()) => {
 		setSelectedDate(date);
@@ -136,7 +159,11 @@ const Home: NextPage = () => {
 		}
 	};
 
-	const handleBookingPrinting = (booking: StrapiResponseData<Booking>) => {};
+	const handleBookingPrinting = (booking: StrapiResponseData<Booking>) => {
+		console.log("this would trigger the print function", booking);
+		setActiveBooking(booking);
+		handlePrint();
+	};
 
 	const toggleEditForm = (booking: StrapiResponseData<Booking>) => {
 		setActiveBooking(booking);
@@ -164,6 +191,10 @@ const Home: NextPage = () => {
 			>
 				<BookingForm initialValue={activeBooking} onFormSubmit={handleBookingEdit} handleCancel={handleCancel} />
 			</CustomModal>
+			{/* <ReactToPrint content={() => printRef.current} /> */}
+			<div style={{ display: "none" }}>
+				<Print booking={activeBooking as StrapiResponseData<Booking>} ref={printRef} />
+			</div>
 			<Space className="sectionContainer" size={16} direction="vertical">
 				<Row className="sectionOneRow" wrap={false} align="middle" justify="space-around" gutter={[40, 0]}>
 					<Col span={12}>

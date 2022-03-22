@@ -119,6 +119,8 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 		}
 	};
 
+	console.log("The bookings received are", bookings);
+
 	return (
 		<AppLayout>
 			<CustomModal
