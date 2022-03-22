@@ -1,14 +1,23 @@
 import type { NextPage } from "next";
-import { Button, Calendar, Col, Result, Row, Space, Tabs, Typography } from "antd";
+import { Button, Calendar, Col, message, Result, Row, Space, Tabs, Typography } from "antd";
 import Layout from "../components/AppLayout";
 import { BookingForm } from "../components/BookingForm";
 import { TripDescription } from "../components/common/TripDescription";
-import { FormValues } from "../types/BookingForm";
-import { createBooking, createClient, createTrip, getBookingsByDate, getBookingsByMonth } from "../helpers/apiHandler";
+import { BookingFormValues } from "../types/BookingForm";
+import {
+	createBooking,
+	createClient,
+	createTrip,
+	getBookingsByDate,
+	getBookingsByMonth,
+	updateBooking,
+	deleteBooking,
+} from "../helpers/apiHandler";
 import { ReactNode, useEffect, useState } from "react";
 import { Spin } from "antd";
 import moment, { Moment } from "moment";
 import { findDateRange, getClientInfo, getMonthlyTripDates } from "../helpers/dataFormatter";
+import { CustomModal } from "../components/common/CustomModal";
 const { TabPane } = Tabs;
 const { Title } = Typography;
 
@@ -17,7 +26,10 @@ type BookingType = Array<StrapiResponseData<Booking>>;
 const Home: NextPage = () => {
 	const [apiState, setApiState] = useState<ApiState>("idle");
 	const [selectedDate, setSelectedDate] = useState<Moment>(moment());
+	const [showEditPopUp, setShowEditPopUp] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState(false);
 	const [activeBookings, setActiveBookings] = useState<StrapiResponseData<Booking>[]>();
+	const [activeBooking, setActiveBooking] = useState<StrapiResponseData<Booking>>();
 	const [bookings, setBookings] = useState<BookingType>([]);
 	const [availableBookings, setAvailableBookings] = useState<Array<string>>([]);
 	const [dateRange, setDateRange] = useState([
@@ -25,7 +37,7 @@ const Home: NextPage = () => {
 		moment().endOf("month").format("YYYY-MM-DD"),
 	]);
 
-	const fetchBookingsByDate = async (date: Moment) => {
+	const fetchBookingsByDate = async (date = moment()) => {
 		setSelectedDate(date);
 		try {
 			const { data } = await getBookingsByDate(date);
@@ -45,17 +57,17 @@ const Home: NextPage = () => {
 
 	const onTabChange = (event: any) => {};
 
-	const handleBookingForm = async (formValues: FormValues) => {
+	const handleBookingForm = async (formValues: BookingFormValues) => {
 		setApiState("inProgress");
 		try {
 			const {
 				data: {
-					data: { id: tripId, attributes: trip },
+					data: { id: tripId },
 				},
 			} = await createTrip(formValues);
 			const {
 				data: {
-					data: { id: clientId, attributes: client },
+					data: { id: clientId },
 				},
 			} = await createClient(getClientInfo(formValues));
 			await createBooking(formValues, tripId, clientId);
@@ -65,23 +77,70 @@ const Home: NextPage = () => {
 		}
 	};
 
+	const handleBookingEdit = async (formValues: BookingFormValues) => {
+		await updateBooking(activeBooking as StrapiResponseData<Booking>, formValues);
+	};
+
 	const dateCellRender = (date: Moment): ReactNode => {
 		const cellDate = date.format("YYYY-MM-DD");
 		const isBooked = availableBookings.includes(cellDate);
-		// console.log("THE AVAILABLE BOOKING IS", availableBookings);
-		// console.log("THE CELL DATE", cellDate);
-		// console.log("THE VALUE FOR TRUE", isBooked);
 		return isBooked && <span className="calendarBooking" />;
 	};
 
 	const fetchBookings = async () => {
 		const { data } = await getBookingsByMonth(dateRange);
 		const { data: strapiResponse } = data;
-		const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
-		const monthlyTripDates = getMonthlyTripDates(updatedBookings);
-		console.log("THE MONTHLY TRIPS", monthlyTripDates);
-		setBookings(updatedBookings);
-		setAvailableBookings(monthlyTripDates);
+		if (strapiResponse.length === 0) {
+			setActiveBookings(undefined);
+			setBookings([]);
+			setActiveBooking(undefined);
+			setAvailableBookings([]);
+			return;
+		}
+
+		strapiResponse.forEach((apiBooking) => {
+			const { id } = apiBooking;
+			const existingIndex = bookings.findIndex(({ id: bookingId }) => {
+				return bookingId === id;
+			});
+			if (existingIndex >= 0) {
+				const updatedBookings = [...bookings.slice(0, existingIndex), apiBooking, ...bookings.slice(existingIndex)];
+				setBookings(updatedBookings);
+				const monthlyTripDates = getMonthlyTripDates(updatedBookings);
+				setAvailableBookings(monthlyTripDates);
+				return;
+			}
+			const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
+			setBookings(updatedBookings);
+			const monthlyTripDates = getMonthlyTripDates(updatedBookings);
+			setAvailableBookings(monthlyTripDates);
+		});
+	};
+
+	const handleCancel = () => {
+		setShowEditPopUp(false);
+		setActiveBooking(undefined);
+	};
+
+	const handleBookingDelete = async (booking: StrapiResponseData<Booking>) => {
+		setActiveBooking(booking);
+		setIsLoading(true);
+		try {
+			await deleteBooking(booking);
+			await fetchBookings();
+			message.success(`Successfully deleted booking id: ${booking.id}`);
+			setIsLoading(false);
+		} catch (error) {
+			setIsLoading(false);
+			message.error(`Error deleting booking id: ${booking.id} and it's dependencies`);
+		}
+	};
+
+	const handleBookingPrinting = (booking: StrapiResponseData<Booking>) => {};
+
+	const toggleEditForm = (booking: StrapiResponseData<Booking>) => {
+		setActiveBooking(booking);
+		setShowEditPopUp(!showEditPopUp);
 	};
 
 	useEffect(() => {
@@ -90,16 +149,21 @@ const Home: NextPage = () => {
 	}, [selectedDate, dateRange]);
 
 	useEffect(() => {
-		console.log(" ------- LOADED THE COMPONENT  ------- ");
 		fetchBookings();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	console.log("THE BOOKINGS", bookings);
-	console.log("THE AVAILABLE BOOKINGS", availableBookings);
-
 	return (
 		<Layout>
+			<CustomModal
+				title="Buses"
+				isVisible={showEditPopUp}
+				handleCancel={handleCancel}
+				isLoading={isLoading}
+				width={900}
+			>
+				<BookingForm initialValue={activeBooking} onFormSubmit={handleBookingEdit} handleCancel={handleCancel} />
+			</CustomModal>
 			<Space className="sectionContainer" size={16} direction="vertical">
 				<Row className="sectionOneRow" wrap={false} align="middle" justify="space-around" gutter={[40, 0]}>
 					<Col span={12}>
@@ -122,7 +186,12 @@ const Home: NextPage = () => {
 									const day = moment(date).date();
 									return (
 										<TabPane tab={`${month} ${day}`} key={index.toString()}>
-											<TripDescription bookingInfo={booking} />
+											<TripDescription
+												onDelete={() => handleBookingDelete(booking)}
+												onPrint={() => handleBookingPrinting(booking)}
+												onEdit={() => toggleEditForm(booking)}
+												bookingInfo={booking}
+											/>
 										</TabPane>
 									);
 								})}
@@ -131,7 +200,14 @@ const Home: NextPage = () => {
 				</Row>
 				<>
 					<Title level={4}>Feed</Title>
-					{apiState !== "success" && apiState !== "inProgress" && <BookingForm onFormSubmit={handleBookingForm} />}
+					{apiState !== "success" && apiState !== "inProgress" && (
+						<BookingForm
+							initialValue={activeBooking}
+							onFormSubmit={handleBookingForm}
+							handleCancel={handleCancel}
+							isCreateForm
+						/>
+					)}
 					{apiState === "success" && (
 						<Result
 							status="success"
@@ -152,7 +228,6 @@ const Home: NextPage = () => {
 					{apiState === "inProgress" && <Spin style={{ width: "100%" }} size="large" />}
 				</>
 			</Space>
-			{/* Section 1 : Date picker and details */}
 		</Layout>
 	);
 };

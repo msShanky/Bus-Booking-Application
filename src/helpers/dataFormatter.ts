@@ -1,9 +1,8 @@
 import moment, { Moment } from "moment";
-import { FormValues } from "../types/BookingForm";
+import { BookingFormValues } from "../types/BookingForm";
 
 export const getMonthlyTripDates = (response: Array<StrapiResponseData<Booking>>): Array<string> => {
 	const dateList: Array<string> = [];
-	console.log("THE GIVEN INPUT IS", response);
 	response.forEach((booking) => {
 		const { attributes } = booking;
 		const date = attributes.trip?.data.attributes.tripDate;
@@ -11,7 +10,6 @@ export const getMonthlyTripDates = (response: Array<StrapiResponseData<Booking>>
 		dateList.push(date as string);
 	});
 
-	console.log("THE DATA LIST IS", dateList);
 	return dateList;
 };
 
@@ -52,7 +50,7 @@ export const getFormattedInitialValues = (values: StrapiResponseData<Booking>) =
 	return formattedInitialValues;
 };
 
-export const getClientInfo = (values: FormValues): Client => {
+export const getClientInfo = (values: BookingFormValues): Client => {
 	return {
 		name: values.name,
 		contact: values.contact,

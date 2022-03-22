@@ -53,7 +53,7 @@ const Planner = () => {
 			const { data: strapiResponse } = data;
 			const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
 			setBookings(updatedBookings);
-			const monthlyTripDates = getMonthlyTripDates(updatedBookings);			
+			const monthlyTripDates = getMonthlyTripDates(updatedBookings);
 			setAvailableBookings(monthlyTripDates);
 		};
 		fetchBookings();

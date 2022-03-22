@@ -1,13 +1,13 @@
 import React, { FunctionComponent, useState } from "react";
 import AppLayout from "../components/AppLayout";
-import { Button, DatePicker, Input, Row, Space, Table } from "antd";
+import { Button, DatePicker, Input, message, Popconfirm, Row, Space, Table } from "antd";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import axios, { AxiosResponse } from "axios";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 const { Search } = Input;
 import { CustomModal, confirm } from "../components/common/CustomModal";
 import { BusForm } from "../components/common/BusForm";
-import { API_URL, createBus, fetchBuses } from "../helpers/apiHandler";
+import { API_URL, createBus, deleteBus, fetchBuses } from "../helpers/apiHandler";
 
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
@@ -36,7 +36,7 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 		if (isCreateForm) {
 			await createBus(values);
 		} else {
-			const url = `${API_URL}/buses/${activeItem?.id}`;			
+			const url = `${API_URL}/buses/${activeItem?.id}`;
 			await axios.put(url, {
 				data: values,
 			});
@@ -49,8 +49,20 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 		setBuses(data);
 	};
 
-	const handleConfirmation = (activeId: number) => {
-		console.log(" ********** DELETE THE ITEM ********** ", activeId);
+	const handleConfirmation = async (record: StrapiResponseData<Bus>) => {
+		setIsLoading(true);
+		try {
+			const response = await deleteBus(record);
+			message.success("Successfully Deleted the item");
+			const {
+				data: { data },
+			} = await fetchBuses();
+			setBuses(data);
+			setIsLoading(false);
+		} catch (error) {
+			setIsLoading(false);
+			message.error("Cannot deleted the item");
+		}
 	};
 
 	const columns = [
@@ -75,12 +87,13 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 					>
 						<EditOutlined />
 					</Button>
-					<Button
-						onClick={() => confirm(() => handleConfirmation(record.id), handleCancel)}
-						style={{ outline: "none", border: "none" }}
+					<Popconfirm
+						onConfirm={() => handleConfirmation(record)}
+						title="Are you sure?"
+						icon={<QuestionCircleOutlined style={{ color: "red" }} />}
 					>
 						<DeleteOutlined />
-					</Button>
+					</Popconfirm>
 				</Space>
 			),
 		},
@@ -88,13 +101,7 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 
 	return (
 		<AppLayout>
-			<CustomModal
-				title="Buses"
-				isVisible={showEditPopUp}
-				handleCancel={handleCancel}
-				handleSubmit={() => console.log("SUBMIT WAS CLICKED")}
-				isLoading={isLoading}
-			>
+			<CustomModal title="Buses" isVisible={showEditPopUp} handleCancel={handleCancel} isLoading={isLoading}>
 				<BusForm
 					initialValues={activeItem as StrapiResponseData<Bus>}
 					handleFormSubmit={handleFormSubmit}

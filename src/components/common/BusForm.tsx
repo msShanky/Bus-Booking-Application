@@ -1,12 +1,11 @@
-import { Button, DatePicker, Form, Input, message, Row, Space, Upload, UploadProps } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-
-import moment from "moment";
-import { API_URL } from "../../helpers/apiHandler";
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { UploadRequestOption, RcFile } from "rc-upload/lib/interface";
-import axios from "axios";
 import { UploadFile } from "antd/lib/upload/interface";
+import { Button, DatePicker, Form, Input, message, Row, Space, Upload, UploadProps } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import moment from "moment";
+import { API_URL } from "../../helpers/apiHandler";
+import axios from "axios";
 
 type ClientFormProps = {
 	initialValues?: StrapiResponseData<Bus>;
@@ -49,12 +48,12 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 		return (uploadedFiles ?? []) as StrapiUploadResponse;
 	};
 
-	const handleFormReset = () => {		
+	const handleFormReset = () => {
 		form.resetFields();
 		form.setFieldsValue({ documents: [] });
 		setUploadedFiles([]);
 		handleReset();
-	};	
+	};
 
 	useEffect(() => {
 		if (!isCreateForm) {
@@ -66,6 +65,7 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 
 	useEffect(() => {
 		setUploadedFiles([]);
+
 		setUploadedFiles(formatUploadedFiles());
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [initialValues]);
@@ -131,7 +131,7 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 		},
 		customRequest: (event) => customFormEvent(event),
 		defaultFileList: getDefaultFileList(),
-	};	
+	};
 
 	return (
 		<Form

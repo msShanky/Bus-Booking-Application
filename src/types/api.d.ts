@@ -94,7 +94,7 @@ type Booking = {
 };
 
 type Invoice = {
-	invoiceTime: string;
+	invoiceDate: string;
 	kilometer: number;
 	diesel: number;
 	dieselCost: number;
