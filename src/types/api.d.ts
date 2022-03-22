@@ -17,13 +17,19 @@ type StrapiResponseData<T> = {
 };
 
 type StrapiResponseType<T> = {
-	data: Array<StrapiResponseData>;
+	data: Array<StrapiResponseData<T>>;
 	meta: Meta;
 };
 
 type StrapiPostResponse<T> = {
 	data: StrapiResponseData<T>;
 	meta: Meta;
+};
+
+type BusDocumentResponse = StrapiResponseData<Omit<StrapiUploadType, "id">>;
+
+type StrapiDocumentResponseType = {
+	data: Array<BusDocumentResponse>;
 };
 
 type Bus = {
@@ -33,13 +39,13 @@ type Bus = {
 	insurance: string;
 	insuranceExpiry: string;
 	license: string;
-	rcFile: string;
-	fcFile: string;
+	documents?: StrapiDocumentResponseType;
 	trip?: Trip;
 };
 
-type BusPostBody = Omit<Bus, "trip"> & {
+type BusPostBody = Omit<Bus, "trip", "documents"> & {
 	trip: number;
+	documents: Array<numbers>;
 };
 
 type Client = {
@@ -88,7 +94,7 @@ type Booking = {
 };
 
 type Invoice = {
-	invoiceTime: string;
+	invoiceDate: string;
 	kilometer: number;
 	diesel: number;
 	dieselCost: number;
@@ -158,3 +164,28 @@ type InvoiceFormType = {
 		totalAmount: number;
 	};
 };
+
+type StrapiUploadType = {
+	id: number;
+	ext: string;
+	formats: string | null;
+	hash: string;
+	mime: string;
+	createdAt: string | null;
+	caption: string | null;
+	name: string;
+	alternativeText: string | null;
+	previewUrl: string | null;
+	provider: string | null;
+	provider_metadata: string | null;
+	size: number;
+	updatedAt: string | null;
+	url: string;
+	width: number | null;
+};
+
+type StrapiUploadResponseGet = {
+	data: Array<StrapiUploadType>;
+};
+
+type StrapiUploadResponse = Array<StrapiUploadType>;

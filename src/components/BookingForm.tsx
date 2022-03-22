@@ -1,16 +1,20 @@
 import { Button, Col, DatePicker, Form, Input, InputNumber, Row, Select, Space, TimePicker } from "antd";
-import React, { FunctionComponent } from "react";
-import { FormValues } from "../types/BookingForm";
+import React, { FunctionComponent, useEffect } from "react";
+import { BookingFormValues } from "../types/BookingForm";
+import moment from "moment";
 
 type BookingFormProps = {
-	onFormSubmit: (formValues: FormValues) => void;
+	onFormSubmit: (formValues: BookingFormValues) => void;
+	initialValue?: StrapiResponseData<Booking>;
+	handleCancel: () => void;
+	isCreateForm?: boolean;
 };
 
 const { Option } = Select;
 
 const formItemLayout = {
 	labelCol: {
-		xs: { span: 24 },
+		xs: { span: 12 },
 		sm: { span: 8 },
 	},
 	wrapperCol: {
@@ -27,10 +31,11 @@ const prefixSelector = (
 	</Form.Item>
 );
 
-export const BookingForm: FunctionComponent<BookingFormProps> = ({ onFormSubmit }) => {
-	const [form] = Form.useForm<FormValues>();
+export const BookingForm: FunctionComponent<BookingFormProps> = (props) => {
+	const { onFormSubmit, handleCancel, initialValue, isCreateForm = false } = props;
+	const [form] = Form.useForm<BookingFormValues>();
 
-	const onFinish = (values: FormValues) => {
+	const onFinish = (values: BookingFormValues) => {
 		onFormSubmit(values);
 	};
 
@@ -43,16 +48,47 @@ export const BookingForm: FunctionComponent<BookingFormProps> = ({ onFormSubmit 
 		form.setFieldsValue({ ...formValues, balanceAmount: quotedPrice - advancePaid });
 	};
 
+	const formattedInitialValues: BookingFormValues = {
+		name: initialValue?.attributes.client?.data?.attributes.name ?? "",
+		contact: initialValue?.attributes.client?.data?.attributes.contact ?? "",
+		date:
+			(initialValue?.attributes?.trip && moment(initialValue?.attributes.trip?.data?.attributes.tripDate)) ?? moment(),
+		time: moment(initialValue?.attributes?.trip?.data?.attributes.pickupTime, "HH:mm:ss"),
+		diesel: initialValue?.attributes.diesel ?? 0,
+		fasttag: initialValue?.attributes.fasttag ?? 0,
+		kilometer: initialValue?.attributes.kilometer ?? 0,
+		advancePaid: initialValue?.attributes.advancePaid ?? 0,
+		balanceAmount: initialValue?.attributes.balanceAmount ?? 0,
+		quotedPrice: initialValue?.attributes.quotedPrice ?? 0,
+		place: {
+			from: initialValue?.attributes.trip?.data.attributes.destination ?? "",
+			to: initialValue?.attributes.trip?.data.attributes.source ?? "",
+		},
+	};
+
+	useEffect(() => {
+		form.resetFields();
+	}, [initialValue, form]);
+
+	const handleFormReset = () => {
+		handleCancel();
+		form.resetFields();
+	};
+
 	return (
 		<Form
 			{...formItemLayout}
 			labelAlign="left"
 			name="bookingForm"
+			initialValues={isCreateForm ? {} : formattedInitialValues}
 			form={form}
 			onFinish={onFinish}
+			onReset={handleFormReset}
 			onChange={handleFormChange}
+			labelWrap={true}
+			style={{ width: "100%" }}
 		>
-			<Row gutter={40} style={{ width: "100%" }}>
+			<Row gutter={40}>
 				<Col style={{ width: "50%" }}>
 					<Form.Item name="name" label="Name" rules={[{ required: true, message: "Please enter the user name!" }]}>
 						<Input placeholder="Customer Name" />
@@ -70,7 +106,7 @@ export const BookingForm: FunctionComponent<BookingFormProps> = ({ onFormSubmit 
 						</Input.Group>
 					</Form.Item>
 					<Form.Item name="date" label="Date" rules={[{ required: true, message: "Please enter the start date!" }]}>
-						<DatePicker style={{ width: "100%" }} />
+						<DatePicker format={"DD-MM-YYYY"} style={{ width: "100%" }} />
 					</Form.Item>
 					<Form.Item name="time" label="Time" rules={[{ required: true, message: "Please enter time!" }]}>
 						<TimePicker format={"HH:mm"} style={{ width: "100%" }} />
@@ -125,12 +161,18 @@ export const BookingForm: FunctionComponent<BookingFormProps> = ({ onFormSubmit 
 					</Form.Item>
 				</Col>
 			</Row>
-			<Form.Item style={{ width: "100%" }}>
-				<Space size={8}>
-					<Button htmlType="submit">Add</Button>
-					<Button>Print</Button>
-					<Button htmlType="reset">Cancel</Button>
-				</Space>
+			<Form.Item style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
+				<Row>
+					<Space style={{ width: "100%" }} size={16}>
+						<Button type="primary" htmlType="submit">
+							{isCreateForm ? "Add" : "Update"}
+						</Button>
+						{/* <Button>Print</Button> */}
+						<Button type="default" htmlType="reset">
+							Cancel
+						</Button>
+					</Space>
+				</Row>
 			</Form.Item>
 		</Form>
 	);

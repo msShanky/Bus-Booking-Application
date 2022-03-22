@@ -1,7 +1,11 @@
-import { Button, DatePicker, Form, Input, InputNumber, Row, Space } from "antd";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { UploadRequestOption, RcFile } from "rc-upload/lib/interface";
+import { UploadFile } from "antd/lib/upload/interface";
+import { Button, DatePicker, Form, Input, message, Row, Space, Upload, UploadProps } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import moment from "moment";
-
-import React, { FunctionComponent, useEffect } from "react";
+import { API_URL } from "../../helpers/apiHandler";
+import axios from "axios";
 
 type ClientFormProps = {
 	initialValues?: StrapiResponseData<Bus>;
@@ -23,16 +27,110 @@ const formItemLayout = {
 
 export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 	const { initialValues, handleFormSubmit, handleReset, isCreateForm } = props;
+	const [uploadedFiles, setUploadedFiles] = useState<StrapiUploadResponse>([]);
 	const [form] = Form.useForm<BusPostBody>();
 
 	const onFinish = (values: BusPostBody) => {
-		handleFormSubmit({ ...values, insuranceExpiry: moment(values.insuranceExpiry).format("YYYY-MM-DD") });
+		handleFormSubmit({
+			...values,
+			insuranceExpiry: moment(values.insuranceExpiry).format("YYYY-MM-DD"),
+			documents: uploadedFiles.map((file) => file.id),
+		});
 	};
 
-	useEffect(() => form.resetFields(), [initialValues, form]);
+	const formatUploadedFiles = (): StrapiUploadResponse => {
+		const uploadedFiles = initialValues?.attributes.documents?.data?.map((file) => {
+			return {
+				id: file.id,
+				...file.attributes,
+			};
+		});
+		return (uploadedFiles ?? []) as StrapiUploadResponse;
+	};
+
+	const handleFormReset = () => {
+		form.resetFields();
+		form.setFieldsValue({ documents: [] });
+		setUploadedFiles([]);
+		handleReset();
+	};
+
+	useEffect(() => {
+		if (!isCreateForm) {
+			setUploadedFiles([]);
+			setUploadedFiles(formatUploadedFiles());
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isCreateForm]);
+
+	useEffect(() => {
+		setUploadedFiles([]);
+
+		setUploadedFiles(formatUploadedFiles());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [initialValues]);
+
+	useEffect(() => {
+		form.resetFields();
+		form.setFieldsValue("documents");
+	}, [initialValues, form]);
+
 	const formattedInitialValues = {
 		...initialValues?.attributes,
 		insuranceExpiry: initialValues?.attributes && moment(initialValues?.attributes.insuranceExpiry),
+		documents: [],
+	};
+
+	const customFormEvent = async (props: UploadRequestOption<StrapiUploadResponse>) => {
+		const { file, onSuccess, onProgress, onError } = props;
+		const rcFile: RcFile = file as RcFile;
+		const formData = new FormData();
+		formData.append(`files`, rcFile, rcFile.name);
+
+		const config = {
+			headers: { "Content-Type": "multipart/form-data" },
+			onUploadProgress: (event: any) => {
+				// @ts-ignore
+				onProgress({ percent: 100 });
+			},
+		};
+
+		try {
+			const { data } = await axios.post<StrapiUploadResponse>(`${API_URL}/upload`, formData, config);
+			message.success(`${rcFile.name} file uploaded successfully`);
+			setUploadedFiles([...uploadedFiles, ...data]);
+			// @ts-ignore
+			onSuccess(data);
+			// @ts-ignore
+			onProgress({ percent: 100 });
+			return true;
+		} catch (error) {
+			console.log("There is an error", error);
+			message.error(`${rcFile.name} file upload failed.`);
+			// @ts-ignore
+			onError({ error, status: "error" });
+			return false;
+		}
+	};
+
+	const getDefaultFileList = (): UploadFile<any>[] => {
+		const defaultList = uploadedFiles.map((file, index) => {
+			const { name, url } = file;
+			return { name, uid: `${index}`, status: "done", url: `${API_URL}${url}` };
+		});
+		return (defaultList ?? []) as UploadFile<any>[];
+	};
+
+	const fileUploadProps: UploadProps = {
+		name: "file",
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+		onChange(info: { file: { status: string; name: any }; fileList: any }) {
+			info.file.status = "success";
+		},
+		customRequest: (event) => customFormEvent(event),
+		defaultFileList: getDefaultFileList(),
 	};
 
 	return (
@@ -43,7 +141,7 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 			name="clientForm"
 			form={form}
 			onFinish={onFinish}
-			onReset={handleReset}
+			onReset={handleFormReset}
 			style={{ width: "80%" }}
 		>
 			<Form.Item
@@ -79,6 +177,11 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 				rules={[{ required: true, message: "Please enter the License details!" }]}
 			>
 				<Input placeholder="License Number" />
+			</Form.Item>
+			<Form.Item name="documents" label="Documents">
+				<Upload {...fileUploadProps}>
+					<Button icon={<UploadOutlined />}>Upload Documents</Button>
+				</Upload>
 			</Form.Item>
 			<Row justify="end">
 				<Space align="center" size={8}>

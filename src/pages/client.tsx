@@ -1,12 +1,11 @@
-import { Button, DatePicker, Input, Row, Space, Table } from "antd";
-import axios, { AxiosResponse } from "axios";
-import { GetServerSideProps, InferGetServerSidePropsType, NextPageContext } from "next";
+import { Button, Input, message, Popconfirm, Row, Space, Table } from "antd";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import React, { FunctionComponent, useState } from "react";
 import AppLayout from "../components/AppLayout";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { CustomModal, confirm } from "../components/common/CustomModal";
+import { EditOutlined, DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { CustomModal } from "../components/common/CustomModal";
 import { ClientForm } from "../components/common/ClientForm";
-import { API_URL, fetchClients, deleteClient, updateClient, createClient } from "../helpers/apiHandler";
+import { fetchClients, deleteClient, updateClient, createClient } from "../helpers/apiHandler";
 const { Search } = Input;
 
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
@@ -49,8 +48,19 @@ const Client: FunctionComponent<NextProps> = (props) => {
 		setIsLoading(false);
 	};
 
-	const handleConfirmation = async (id: number) => {
-		await deleteClient(id);
+	const handleConfirmation = async (record: StrapiResponseData<Client>) => {
+		setActiveItem(record);
+		setIsLoading(true);
+		try {
+			await deleteClient(record.id);
+			setActiveItem(undefined);
+			handleClientFetch();
+			message.success("The item was deleted successfully!");
+			setIsLoading(false);
+		} catch (error) {
+			setIsLoading(false);
+			message.error("There was an error deleting the item");
+		}
 	};
 
 	const columns = [
@@ -75,15 +85,13 @@ const Client: FunctionComponent<NextProps> = (props) => {
 						>
 							<EditOutlined />
 						</Button>
-						<Button
-							onClick={() => {
-								setActiveItem(record);
-								confirm(() => handleConfirmation(record.id), handleCancel);
-							}}
-							style={{ outline: "none", border: "none" }}
+						<Popconfirm
+							onConfirm={() => handleConfirmation(record)}
+							title="Are you sure?"
+							icon={<QuestionCircleOutlined style={{ color: "red" }} />}
 						>
 							<DeleteOutlined />
-						</Button>
+						</Popconfirm>
 					</Space>
 				);
 			},
@@ -92,13 +100,7 @@ const Client: FunctionComponent<NextProps> = (props) => {
 
 	return (
 		<AppLayout>
-			<CustomModal
-				title="Client"
-				isVisible={showEditPopUp}
-				handleCancel={handleCancel}
-				handleSubmit={() => console.log("SUBMIT WAS CLICKED")}
-				isLoading={isLoading}
-			>
+			<CustomModal title="Client" isVisible={showEditPopUp} handleCancel={handleCancel} isLoading={isLoading}>
 				<ClientForm
 					isCreateNewForm={isCreateForm as boolean}
 					initialValues={{
@@ -131,9 +133,6 @@ const Client: FunctionComponent<NextProps> = (props) => {
 					dataSource={clients}
 				/>
 			</Row>
-			{/* <Row>
-				<ClientForm handleFormSubmit={() => console.log("HANDLE FORM CREATE")} handleReset={handleCancel} />
-			</Row> */}
 		</AppLayout>
 	);
 };

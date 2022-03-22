@@ -3,32 +3,34 @@ import { Badge, Calendar } from "antd";
 import AppLayout from "../components/AppLayout";
 import { getBookingsByDate, getBookingsByMonth } from "../helpers/apiHandler";
 import moment, { Moment } from "moment";
-import { getMonthlyTripDates } from "../helpers/dataFormatter";
+import { findDateRange, getMonthlyTripDates } from "../helpers/dataFormatter";
+
+type BookingType = Array<StrapiResponseData<Booking>>;
 
 const Planner = () => {
-	const [monthlyBookings, setMonthlyBookings] = useState<StrapiResponseData<Booking>[]>();
-	const [availableBookings, setMonthlyAvailableBookings] = useState<Array<string>>([]);
+	const [bookings, setBookings] = useState<BookingType>([]);
+	const [availableBookings, setAvailableBookings] = useState<Array<string>>([]);
 	const [dateRange, setDateRange] = useState([
 		moment().startOf("month").format("YYYY-MM-DD"),
 		moment().endOf("month").format("YYYY-MM-DD"),
 	]);
 
-	const onPanelChange = (value: any, mode: any) => {
-		console.log(value.format("YYYY-MM-DD"), mode);
+	const onPanelChange = (value: Moment, mode: any) => {
+		setDateRange(findDateRange(value));
 	};
 
 	const dateCellRender = (cellDate: Moment) => {
 		const cellDateFormatted = cellDate.format("YYYY-MM-DD");
 		const isAvailable = availableBookings.includes(cellDateFormatted);
-
-		const currentDateBookings = monthlyBookings?.filter((booking) => {
+		const currentDateBookings = bookings?.filter((booking) => {
 			const tripDate = booking.attributes.trip?.data.attributes.tripDate;
 			return tripDate === cellDateFormatted;
 		});
+
 		return (
 			isAvailable && (
 				<ul className="dailyBookings">
-					{currentDateBookings?.map((booking) => {
+					{currentDateBookings?.map((booking: StrapiResponseData<Booking>) => {
 						const { id, attributes } = booking;
 						return (
 							<li key={`BOOKING_ID_${id}`}>
@@ -47,17 +49,24 @@ const Planner = () => {
 
 	useEffect(() => {
 		const fetchBookings = async () => {
-			const { data: monthlyBooking } = await getBookingsByMonth(dateRange);
-			setMonthlyBookings(monthlyBooking.data);
-			console.log("MONTHLY BOOKING", monthlyBooking.data);
-			setMonthlyAvailableBookings(getMonthlyTripDates(monthlyBooking.data));
+			const { data } = await getBookingsByMonth(dateRange);
+			const { data: strapiResponse } = data;
+			const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
+			setBookings(updatedBookings);
+			const monthlyTripDates = getMonthlyTripDates(updatedBookings);
+			setAvailableBookings(monthlyTripDates);
 		};
 		fetchBookings();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dateRange]);
 
 	return (
 		<AppLayout>
-			<Calendar dateCellRender={dateCellRender} onPanelChange={onPanelChange} />
+			<Calendar
+				dateCellRender={dateCellRender}
+				onSelect={(value) => console.log("THE VALUE IS CLICKED", value)}
+				onPanelChange={onPanelChange}
+			/>
 		</AppLayout>
 	);
 };

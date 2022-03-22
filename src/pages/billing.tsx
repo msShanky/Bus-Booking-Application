@@ -1,11 +1,19 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
-import { Button, Input, Row, Space, Table, Typography } from "antd";
+import { Button, DatePicker, Input, message, Row, Space, Table, Typography } from "antd";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { CustomModal, confirm } from "../components/common/CustomModal";
 import { InvoiceForm } from "../components/common/InvoiceForm";
-import { createInvoice, fetchBookings, fetchBookingsWithQuery, updateInvoice } from "../helpers/apiHandler";
+import {
+	createInvoice,
+	fetchBookings,
+	fetchBookingsWithQuery,
+	updateInvoice,
+	getBookingsByInvoiceDate,
+	deleteBooking,
+} from "../helpers/apiHandler";
+import { Moment } from "moment";
+import { billingFormColumns } from "../components/common/BillingFormColumn";
 const { Search } = Input;
 
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
@@ -15,13 +23,9 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 	const [bookings, setBookings] = useState(preFetchedBookings);
 	const [showEditPopUp, setShowEditPopUp] = useState(false);
 	const [activeItem, setActiveItem] = useState<StrapiResponseData<Booking>>();
-	const [isLoading, setIsLoading] = useState(false);
+	const [dateFilterValue, setDateFilterValue] = useState<Moment>();
 	const [apiState, setApiState] = useState<ApiState>("idle");
 	const [searchValue, setSearchValue] = useState<string>();
-
-	const handleConfirmation = (activeId: number) => {
-		console.log(" ********** DELETE THE ITEM ********** ", activeId);
-	};
 
 	const handleCancel = () => {
 		setShowEditPopUp(false);
@@ -39,6 +43,7 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 
 	const onSearch = async (value: string) => {
 		setApiState("inProgress");
+		setSearchValue(value);
 		try {
 			const {
 				data: { data },
@@ -73,51 +78,48 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 		}
 	};
 
-	const columns = [
-		{ title: "ID", dataIndex: "id", key: "id" },
-		{ title: "Name", dataIndex: ["attributes", "client", "data", "attributes", "name"], key: "name" },
-		{
-			title: "Trip",
-			key: "place",
-			render: (record: StrapiResponseData<Booking>) => {
-				const { attributes } = record;
-				const { trip } = attributes;
-				return (
-					<Typography>
-						{trip?.data.attributes.source} - {trip?.data.attributes.destination}
-					</Typography>
-				);
-			},
-		},
-		{ title: "KM", dataIndex: ["attributes", "kilometer"], key: "contact" },
-		{ title: "Quoted Price", dataIndex: ["attributes", "quotedPrice"], key: "quotedPrice" },
-		{ title: "Billing Status", dataIndex: ["attributes", "bookingState"], key: "bookingState" },
-		{
-			title: "Action",
-			key: "action",
-			render: (record: StrapiResponseData<Booking>) => {
-				return (
-					<Space size="middle">
-						<Button
-							onClick={() => {
-								setActiveItem(record);
-								setShowEditPopUp(!showEditPopUp);
-							}}
-							style={{ outline: "none", border: "none" }}
-						>
-							<EditOutlined />
-						</Button>
-						<Button
-							onClick={() => confirm(() => handleConfirmation(record.id), handleCancel)}
-							style={{ outline: "none", border: "none" }}
-						>
-							<DeleteOutlined />
-						</Button>
-					</Space>
-				);
-			},
-		},
-	];
+	const handleFormItemEdit = (record: StrapiResponseData<Booking>) => {
+		setActiveItem(record);
+		setShowEditPopUp(!showEditPopUp);
+	};
+
+	const handleDateFilterSelection = async (date: Moment) => {
+		setDateFilterValue(date);
+		setApiState("inProgress");
+
+		try {
+			if (date) {
+				const response = await getBookingsByInvoiceDate(date);
+				setBookings(response.data.data);
+			} else {
+				const response = await fetchBookings();
+				setBookings(response.data.data);
+			}
+			setApiState("success");
+		} catch (error) {
+			setApiState("error");
+		}
+	};
+
+	useEffect(() => {
+		() => setSearchValue("");
+	});
+
+	const handleDelete = async (record: StrapiResponseData<Booking>) => {
+		setApiState("inProgress");
+		try {
+			await deleteBooking(record);
+			const response = await fetchBookings();
+			setBookings(response.data.data);
+			setApiState("success");
+			message.success(`Successfully deleted booking id: ${record.id}`);
+		} catch (error) {
+			setApiState("error");
+			message.success(`There has been some error deleting booking id: ${record.id}`);
+		}
+	};
+
+	console.log("The bookings received are", bookings);
 
 	return (
 		<AppLayout>
@@ -125,8 +127,7 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 				title="Invoice"
 				isVisible={showEditPopUp}
 				handleCancel={handleCancel}
-				handleSubmit={() => console.log("SUBMIT WAS CLICKED")}
-				isLoading={isLoading}
+				isLoading={apiState === "inProgress"}
 				width={1200}
 			>
 				<InvoiceForm
@@ -138,12 +139,16 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 			</CustomModal>
 			<Row gutter={8} justify="space-between">
 				<Search allowClear onSearch={onSearch} style={{ width: "40%" }} />
+				<DatePicker onChange={(dateValue) => handleDateFilterSelection(dateValue as Moment)} />
 			</Row>
 			<Row style={{ marginTop: "2em" }} gutter={8}>
 				<Table
 					loading={apiState === "inProgress"}
 					style={{ width: "100%", minHeight: "700px" }}
-					columns={columns}
+					columns={billingFormColumns({
+						handleEdit: handleFormItemEdit,
+						handleDelete,
+					})}
 					dataSource={bookings}
 				/>
 			</Row>
@@ -151,7 +156,7 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 	);
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async () => {
 	const {
 		data: { data },
 	} = await fetchBookings();

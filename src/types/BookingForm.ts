@@ -1,11 +1,13 @@
-export type FormValues = {
+import { Moment } from "moment";
+
+export type BookingFormValues = {
 	name: string;
-	date: string;
+	date: Moment | string;
 	place: {
 		from: string;
 		to: string;
 	};
-	time: string;
+	time: Moment | string;
 	kilometer: number;
 	diesel: number;
 	fasttag: number;

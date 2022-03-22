@@ -5,20 +5,20 @@ import React, { FunctionComponent } from "react";
 type CustomModalProps = {
 	isVisible: boolean;
 	title: string;
-	handleSubmit: () => void;
+	handleSubmit?: () => void;
 	handleCancel: () => void;
 	isLoading: boolean;
 	width?: number;
 };
 
 export const CustomModal: FunctionComponent<CustomModalProps> = (props) => {
-	const { title, children, isVisible, handleSubmit, handleCancel, isLoading, width } = props;
+	const { title, children, isVisible, handleCancel, isLoading, width } = props;
 	return (
 		<Modal
 			footer={null}
 			title={title}
 			visible={isVisible}
-			onOk={handleSubmit}
+			// onOk={handleSubmit}
 			onCancel={handleCancel}
 			confirmLoading={isLoading}
 			width={width}
