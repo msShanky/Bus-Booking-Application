@@ -237,7 +237,7 @@ const Home: NextPage = () => {
 			<div style={{ display: "none" }}>
 				<Print booking={activeBooking as StrapiResponseData<Booking>} ref={printRef} />
 			</div>
-			<Space className="sectionContainer" size={16} direction="vertical">
+			<Space className="sectionContainer bookingCalender" size={16} direction="vertical">
 				<Row className="sectionOneRow" wrap={false} align="middle" justify="space-around" gutter={[40, 0]}>
 					<Col span={12}>
 						<Calendar

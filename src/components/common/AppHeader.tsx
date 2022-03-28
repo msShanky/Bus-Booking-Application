@@ -34,9 +34,8 @@ const pageLinks: Array<PageLink> = [
 
 export const AppHeader = () => {
 	const router = useRouter();
-	console.log("THE CURRENT URL IS", router.route);
 	return (
-		<Header>
+		<Header className="booking-header">
 			<Row justify="space-between" align="middle">
 				<Col>
 					<div className="logo" />

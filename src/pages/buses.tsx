@@ -68,10 +68,10 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 	const columns = [
 		{ title: "ID", dataIndex: "id", key: "id" },
 		{ title: "Bus No", dataIndex: ["attributes", "busNumber"], key: "busNumber" },
-		{ title: "RC", dataIndex: ["attributes", "rc"], key: "rc" },
+		{ title: "Engine / Chase No", dataIndex: ["attributes", "rc"], key: "rc" },
 		{ title: "FC", dataIndex: ["attributes", "fc"], key: "fc" },
 		{ title: "Insurance", dataIndex: ["attributes", "insurance"], key: "insurance" },
-		{ title: "License", dataIndex: ["attributes", "license"], key: "license" },
+		{ title: "Tax No", dataIndex: ["attributes", "license"], key: "license" },
 		{
 			title: "Action",
 			key: "action",
