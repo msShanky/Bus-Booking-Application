@@ -4,6 +4,7 @@ import { QuestionCircleOutlined } from "@ant-design/icons";
 
 type TripDescriptionProps = {
 	bookingInfo: StrapiResponseData<Booking>;
+	isLoading: boolean;
 } & ActionTrayType;
 
 type ActionTrayType = {
@@ -12,8 +13,8 @@ type ActionTrayType = {
 	onPrint: () => void;
 };
 
-const TabActionTray = (props: ActionTrayType) => {
-	const { onDelete, onEdit, onPrint } = props;
+const TabActionTray = (props: TripDescriptionProps) => {
+	const { onDelete, onEdit, onPrint, isLoading } = props;
 	return (
 		<Space size={8}>
 			<Button onClick={onEdit}>Edit</Button>
@@ -25,7 +26,9 @@ const TabActionTray = (props: ActionTrayType) => {
 			>
 				<Button>Delete</Button>
 			</Popconfirm>
-			<Button onClick={onPrint}>Print</Button>
+			<Button loading={isLoading} onClick={onPrint}>
+				Print
+			</Button>
 		</Space>
 	);
 };
@@ -36,7 +39,8 @@ export const TripDescription: FunctionComponent<TripDescriptionProps> = (props) 
 	const { trip, client, kilometer, diesel, quotedPrice, advancePaid, balanceAmount } = attributes;
 	return (
 		<>
-			<Descriptions layout="horizontal" extra={<TabActionTray onDelete={onDelete} onEdit={onEdit} onPrint={onPrint} />}>
+			{/* <Descriptions layout="horizontal" extra={<TabActionTray loading={isLoading} onDelete={onDelete} onEdit={onEdit} onPrint={onPrint} />}> */}
+			<Descriptions layout="horizontal" extra={<TabActionTray {...props} />}>
 				<Descriptions.Item label="Name">{client?.data?.attributes.name}</Descriptions.Item>
 				<Descriptions.Item label="Date">{trip?.data?.attributes.tripDate}</Descriptions.Item>
 				<Descriptions.Item label="Place">

@@ -11,17 +11,7 @@ type PrintProps = {
 	booking: StrapiResponseData<Booking>;
 };
 
-// const Print = forwardRef((props, ref) => {
-// 	return (
-// 		<div style={{ width: "800px", height: "800px", background: "red" }} ref={ref}>
-// 			<h1>This would be the printed on to the preview</h1>
-// 		</div>
-// 	);
-// });
-
 const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
-	console.log("The props received for print is", props);
-
 	const { booking } = props;
 
 	return (

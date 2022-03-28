@@ -8,6 +8,7 @@ type BookingFormProps = {
 	initialValue?: StrapiResponseData<Booking>;
 	handleCancel: () => void;
 	isCreateForm?: boolean;
+	isLoading?: boolean;
 };
 
 const { Option } = Select;
@@ -32,7 +33,7 @@ const prefixSelector = (
 );
 
 export const BookingForm: FunctionComponent<BookingFormProps> = (props) => {
-	const { onFormSubmit, handleCancel, initialValue, isCreateForm = false } = props;
+	const { onFormSubmit, handleCancel, initialValue, isCreateForm = false, isLoading = false } = props;
 	const [form] = Form.useForm<BookingFormValues>();
 
 	const onFinish = (values: BookingFormValues) => {
@@ -164,10 +165,9 @@ export const BookingForm: FunctionComponent<BookingFormProps> = (props) => {
 			<Form.Item style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
 				<Row>
 					<Space style={{ width: "100%" }} size={16}>
-						<Button type="primary" htmlType="submit">
+						<Button loading={isLoading} type="primary" htmlType="submit">
 							{isCreateForm ? "Add" : "Update"}
-						</Button>
-						{/* <Button>Print</Button> */}
+						</Button>						
 						<Button type="default" htmlType="reset">
 							Cancel
 						</Button>

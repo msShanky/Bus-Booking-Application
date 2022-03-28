@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useCallback, useEffect, useRef, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import { Button, DatePicker, Input, message, Row, Space, Table, Typography } from "antd";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
@@ -14,6 +14,8 @@ import {
 } from "../helpers/apiHandler";
 import { Moment } from "moment";
 import { billingFormColumns } from "../components/common/BillingFormColumn";
+import Print from "../components/common/Print";
+import { useReactToPrint } from "react-to-print";
 const { Search } = Input;
 
 type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
@@ -26,6 +28,8 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 	const [dateFilterValue, setDateFilterValue] = useState<Moment>();
 	const [apiState, setApiState] = useState<ApiState>("idle");
 	const [searchValue, setSearchValue] = useState<string>();
+	const [isPrintLoading, setIsPrintLoading] = useState<boolean>(false);
+	const printRef = useRef<HTMLDivElement | null>(null);
 
 	const handleCancel = () => {
 		setShowEditPopUp(false);
@@ -119,6 +123,36 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 		}
 	};
 
+	const handleAfterPrint = useCallback(() => {
+		console.log("`onAfterPrint` called");
+	}, []);
+
+	const handleBeforePrint = useCallback(() => {
+		console.log("`onBeforePrint` called");
+	}, []);
+
+	const reactToPrintContent = useCallback(() => {
+		return printRef.current;
+	}, [printRef.current]);
+
+	const handlePrint = useReactToPrint({
+		content: reactToPrintContent,
+		documentTitle: "Sample Title",
+		onBeforePrint: handleBeforePrint,
+		onAfterPrint: handleAfterPrint,
+		removeAfterPrint: true,
+	});
+
+	const handleBookingPrinting = () => {
+		console.log("this would trigger the print function", activeItem);
+		setActiveItem(activeItem);
+		setIsPrintLoading(true);
+		setTimeout(() => {
+			handlePrint();
+			setIsPrintLoading(false);
+		}, 500);
+	};
+
 	console.log("The bookings received are", bookings);
 
 	return (
@@ -134,9 +168,14 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 					initialValues={activeItem as StrapiResponseData<Booking>}
 					handleFormSubmit={handleFormSubmit}
 					handleReset={handleCancel}
+					handlePrint={handleBookingPrinting}
 					apiState={apiState}
+					isPrintLoading={isPrintLoading}
 				/>
 			</CustomModal>
+			<div style={{ display: "none" }}>
+				<Print booking={activeItem as StrapiResponseData<Booking>} ref={printRef} />
+			</div>
 			<Row gutter={8} justify="space-between">
 				<Search allowClear onSearch={onSearch} style={{ width: "40%" }} />
 				<DatePicker onChange={(dateValue) => handleDateFilterSelection(dateValue as Moment)} />
