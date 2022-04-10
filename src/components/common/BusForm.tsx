@@ -151,16 +151,16 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 			>
 				<Input placeholder="Bus Number" />
 			</Form.Item>
-			<Form.Item name="rc" label="RC" rules={[{ required: true, message: "Please enter the rc details!" }]}>
-				<Input placeholder="RC Information" />
+			<Form.Item name="rc" label="Engine No" rules={[{ required: true, message: "Please enter the engine details!" }]}>
+				<Input placeholder="Engine No Information" />
 			</Form.Item>
-			<Form.Item name="fc" label="FC" rules={[{ required: true, message: "Please enter the rc details!" }]}>
+			<Form.Item name="fc" label="FC" rules={[{ required: true, message: "Please enter the fc details!" }]}>
 				<Input placeholder="FC Information" />
 			</Form.Item>
 			<Form.Item
 				name="insurance"
 				label="Insurance"
-				rules={[{ required: true, message: "Please enter the rc details!" }]}
+				rules={[{ required: true, message: "Please enter the insurance details!" }]}
 			>
 				<Input placeholder="Insurance Information" />
 			</Form.Item>
@@ -173,10 +173,10 @@ export const BusForm: FunctionComponent<ClientFormProps> = (props) => {
 			</Form.Item>
 			<Form.Item
 				name="license"
-				label="License"
-				rules={[{ required: true, message: "Please enter the License details!" }]}
+				label="Tax No"
+				rules={[{ required: true, message: "Please enter the Tax No details!" }]}
 			>
-				<Input placeholder="License Number" />
+				<Input placeholder="Tax Number" />
 			</Form.Item>
 			<Form.Item name="documents" label="Documents">
 				<Upload {...fileUploadProps}>

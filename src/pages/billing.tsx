@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from "react";
+import React, { FunctionComponent, useCallback, useEffect, useRef, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import { Button, DatePicker, Input, message, Row, Space, Table, Typography } from "antd";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
@@ -14,18 +14,19 @@ import {
 } from "../helpers/apiHandler";
 import { Moment } from "moment";
 import { billingFormColumns } from "../components/common/BillingFormColumn";
+import Print from "../components/common/Print";
+import { useReactToPrint } from "react-to-print";
 const { Search } = Input;
 
-type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
-
-const Billing: FunctionComponent<NextProps> = (props) => {
-	const { bookings: preFetchedBookings } = props;
-	const [bookings, setBookings] = useState(preFetchedBookings);
+const Billing: FunctionComponent = (props) => {
+	const [bookings, setBookings] = useState<StrapiResponseData<Booking>[]>([]);
 	const [showEditPopUp, setShowEditPopUp] = useState(false);
 	const [activeItem, setActiveItem] = useState<StrapiResponseData<Booking>>();
 	const [dateFilterValue, setDateFilterValue] = useState<Moment>();
 	const [apiState, setApiState] = useState<ApiState>("idle");
 	const [searchValue, setSearchValue] = useState<string>();
+	const [isPrintLoading, setIsPrintLoading] = useState<boolean>(false);
+	const printRef = useRef<HTMLDivElement | null>(null);
 
 	const handleCancel = () => {
 		setShowEditPopUp(false);
@@ -101,6 +102,24 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 		}
 	};
 
+	const fetchApiBookings = async () => {
+		setApiState("inProgress");
+		try {
+			const {
+				data: { data },
+			} = await fetchBookings();
+			setBookings(data);
+			setApiState("success");
+		} catch (error) {
+			setApiState("error");
+		}
+	};
+
+	useEffect(() => {
+		fetchApiBookings();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	useEffect(() => {
 		() => setSearchValue("");
 	});
@@ -119,7 +138,35 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 		}
 	};
 
-	console.log("The bookings received are", bookings);
+	// const handleAfterPrint = useCallback(() => {
+	// 	console.log("`onAfterPrint` called");
+	// }, []);
+
+	// const handleBeforePrint = useCallback(() => {
+	// 	console.log("`onBeforePrint` called");
+	// }, []);
+
+	const reactToPrintContent = useCallback(() => {
+		return printRef.current;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [printRef.current]);
+
+	const handlePrint = useReactToPrint({
+		content: reactToPrintContent,
+		documentTitle: "Sample Title",
+		removeAfterPrint: true,
+		// onBeforePrint: handleBeforePrint,
+		// onAfterPrint: handleAfterPrint,
+	});
+
+	const handleBookingPrinting = () => {
+		setActiveItem(activeItem);
+		setIsPrintLoading(true);
+		setTimeout(() => {
+			handlePrint();
+			setIsPrintLoading(false);
+		}, 500);
+	};
 
 	return (
 		<AppLayout>
@@ -134,9 +181,14 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 					initialValues={activeItem as StrapiResponseData<Booking>}
 					handleFormSubmit={handleFormSubmit}
 					handleReset={handleCancel}
+					handlePrint={handleBookingPrinting}
 					apiState={apiState}
+					isPrintLoading={isPrintLoading}
 				/>
 			</CustomModal>
+			<div style={{ display: "none" }}>
+				<Print booking={activeItem as StrapiResponseData<Booking>} ref={printRef} />
+			</div>
 			<Row gutter={8} justify="space-between">
 				<Search allowClear onSearch={onSearch} style={{ width: "40%" }} />
 				<DatePicker onChange={(dateValue) => handleDateFilterSelection(dateValue as Moment)} />
@@ -156,16 +208,16 @@ const Billing: FunctionComponent<NextProps> = (props) => {
 	);
 };
 
-export const getServerSideProps: GetServerSideProps = async () => {
-	const {
-		data: { data },
-	} = await fetchBookings();
+// export const getServerSideProps: GetServerSideProps = async () => {
+// 	const {
+// 		data: { data },
+// 	} = await fetchBookings();
 
-	return {
-		props: {
-			bookings: data,
-		},
-	};
-};
+// 	return {
+// 		props: {
+// 			bookings: data,
+// 		},
+// 	};
+// };
 
 export default Billing;

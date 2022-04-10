@@ -1,5 +1,4 @@
 import { Button, Col, DatePicker, Form, Input, InputNumber, Row, Select, Space, TimePicker, Typography } from "antd";
-import moment, { Moment } from "moment";
 import React, { FunctionComponent, useEffect, useState } from "react";
 import { getFormattedInitialValues } from "../../helpers/dataFormatter";
 const { Title } = Typography;
@@ -9,7 +8,9 @@ type InvoiceFormProps = {
 	initialValues: StrapiResponseData<Booking>;
 	handleFormSubmit: (formData: InvoiceFormType) => void;
 	handleReset: () => void;
+	handlePrint: () => void;
 	apiState: ApiState;
+	isPrintLoading: boolean;
 };
 
 const formItemLayout = {
@@ -24,14 +25,12 @@ const formItemLayout = {
 
 export const InvoiceForm: FunctionComponent<InvoiceFormProps> = (props) => {
 	const [form] = Form.useForm();
-	const { initialValues, handleFormSubmit, handleReset, apiState } = props;
+	const { initialValues, handleFormSubmit, handleReset, handlePrint, apiState, isPrintLoading } = props;
 	const [isInvoiced, setIsInvoiced] = useState<boolean>(initialValues?.attributes?.bookingState === "Invoiced");
 
 	const onFinish = (values: InvoiceFormType) => {
 		handleFormSubmit(values);
 	};
-
-	console.log("the initial value received for invoice form", initialValues);
 
 	const values = getFormattedInitialValues(initialValues);
 
@@ -180,6 +179,11 @@ export const InvoiceForm: FunctionComponent<InvoiceFormProps> = (props) => {
 					<Button type="primary" htmlType="submit" loading={apiState === "inProgress"}>
 						{isInvoiced ? "Update Invoice" : "Create Invoice"}
 					</Button>
+					{isInvoiced && (
+						<Button onClick={handlePrint} loading={isPrintLoading}>
+							Print
+						</Button>
+					)}
 					<Button type="primary" danger htmlType="reset">
 						Cancel
 					</Button>

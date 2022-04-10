@@ -151,14 +151,16 @@ export const updateBooking = async (activeBooking: StrapiResponseData<Booking>, 
 	// Update the trip information
 	const { place, date, time } = formValues;
 	// const tripUpdateResponse = await axios.put(`${API_URL}/trips/${tripId}`, {
-	await axios.put(`${API_URL}/trips/${tripId}`, {
+	const tripUpdateBody = {
 		data: {
 			source: place.from,
 			destination: place.to,
 			pickupTime: moment(time).format("HH:mm:ss.SSS"),
-			tripDate: date,
+			tripDate: moment(date).format("YYYY-MM-DD"),
 		},
-	});
+	};
+
+	await axios.put(`${API_URL}/trips/${tripId}`, tripUpdateBody);
 
 	// Update the booking information
 	const { advancePaid, balanceAmount, diesel, fasttag, kilometer, quotedPrice } = formValues;

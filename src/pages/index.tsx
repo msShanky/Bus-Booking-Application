@@ -13,12 +13,12 @@ import {
 	updateBooking,
 	deleteBooking,
 } from "../helpers/apiHandler";
-import { Component, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Spin } from "antd";
 import moment, { Moment } from "moment";
 import { findDateRange, getClientInfo, getMonthlyTripDates } from "../helpers/dataFormatter";
 import { CustomModal } from "../components/common/CustomModal";
-import ReactToPrint, { useReactToPrint } from "react-to-print";
+import { useReactToPrint } from "react-to-print";
 import Print from "../components/common/Print";
 const { TabPane } = Tabs;
 const { Title } = Typography;
@@ -27,6 +27,8 @@ type BookingType = Array<StrapiResponseData<Booking>>;
 
 const Home: NextPage = () => {
 	const [apiState, setApiState] = useState<ApiState>("idle");
+	const [bookingEditApiState, setBookingEditApiState] = useState<ApiState>("idle");
+	const [isPrintLoading, setIsPrintLoading] = useState<boolean>(false);
 	const [selectedDate, setSelectedDate] = useState<Moment>(moment());
 	const [showEditPopUp, setShowEditPopUp] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -40,23 +42,14 @@ const Home: NextPage = () => {
 	]);
 	const printRef = useRef<HTMLDivElement | null>(null);
 
-	const handleAfterPrint = useCallback(() => {
-		console.log("`onAfterPrint` called");
-	}, []);
-
-	const handleBeforePrint = useCallback(() => {
-		console.log("`onBeforePrint` called");
-	}, []);
-
 	const reactToPrintContent = useCallback(() => {
 		return printRef.current;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [printRef.current]);
 
 	const handlePrint = useReactToPrint({
 		content: reactToPrintContent,
 		documentTitle: "AwesomeFileName",
-		onBeforePrint: handleBeforePrint,
-		onAfterPrint: handleAfterPrint,
 		removeAfterPrint: true,
 	});
 
@@ -100,10 +93,6 @@ const Home: NextPage = () => {
 		}
 	};
 
-	const handleBookingEdit = async (formValues: BookingFormValues) => {
-		await updateBooking(activeBooking as StrapiResponseData<Booking>, formValues);
-	};
-
 	const dateCellRender = (date: Moment): ReactNode => {
 		const cellDate = date.format("YYYY-MM-DD");
 		const isBooked = availableBookings.includes(cellDate);
@@ -114,12 +103,15 @@ const Home: NextPage = () => {
 		const { data } = await getBookingsByMonth(dateRange);
 		const { data: strapiResponse } = data;
 		if (strapiResponse.length === 0) {
-			setActiveBookings(undefined);
 			setBookings([]);
-			setActiveBooking(undefined);
 			setAvailableBookings([]);
+			setActiveBookings(undefined)
+			setActiveBooking(undefined)
 			return;
 		}
+
+		setActiveBookings(undefined);
+		setActiveBooking(undefined);
 
 		strapiResponse.forEach((apiBooking) => {
 			const { id } = apiBooking;
@@ -127,7 +119,12 @@ const Home: NextPage = () => {
 				return bookingId === id;
 			});
 			if (existingIndex >= 0) {
-				const updatedBookings = [...bookings.slice(0, existingIndex), apiBooking, ...bookings.slice(existingIndex)];
+				let updatedBookings = [];
+				if (existingIndex === 0) {
+					updatedBookings = [apiBooking];
+				} else {
+					updatedBookings = [...bookings.slice(0, existingIndex), apiBooking, ...bookings.slice(existingIndex)];
+				}
 				setBookings(updatedBookings);
 				const monthlyTripDates = getMonthlyTripDates(updatedBookings);
 				setAvailableBookings(monthlyTripDates);
@@ -147,10 +144,11 @@ const Home: NextPage = () => {
 
 	const handleBookingDelete = async (booking: StrapiResponseData<Booking>) => {
 		setActiveBooking(booking);
-		setIsLoading(true);
+		setIsLoading(true);		
 		try {
 			await deleteBooking(booking);
 			await fetchBookings();
+			setActiveBooking(undefined)
 			message.success(`Successfully deleted booking id: ${booking.id}`);
 			setIsLoading(false);
 		} catch (error) {
@@ -159,10 +157,26 @@ const Home: NextPage = () => {
 		}
 	};
 
+	const handleBookingEdit = async (formValues: BookingFormValues) => {
+		setBookingEditApiState("inProgress");
+		try {
+			await updateBooking(activeBooking as StrapiResponseData<Booking>, formValues);
+			setBookingEditApiState("success");
+			setSelectedDate(moment());
+			fetchBookings();
+			setShowEditPopUp(false);
+		} catch (error) {
+			setBookingEditApiState("error");
+		}
+	};
+
 	const handleBookingPrinting = (booking: StrapiResponseData<Booking>) => {
-		console.log("this would trigger the print function", booking);
+		setIsPrintLoading(true);
 		setActiveBooking(booking);
-		handlePrint();
+		setTimeout(() => {
+			handlePrint();
+			setIsPrintLoading(false);
+		}, 500);
 	};
 
 	const toggleEditForm = (booking: StrapiResponseData<Booking>) => {
@@ -173,45 +187,47 @@ const Home: NextPage = () => {
 	useEffect(() => {
 		fetchBookings();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedDate, dateRange]);
-
-	useEffect(() => {
-		fetchBookings();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
 		<Layout>
 			<CustomModal
-				title="Buses"
+				title="Booking"
 				isVisible={showEditPopUp}
 				handleCancel={handleCancel}
 				isLoading={isLoading}
 				width={900}
 			>
-				<BookingForm initialValue={activeBooking} onFormSubmit={handleBookingEdit} handleCancel={handleCancel} />
+				<BookingForm
+					isLoading={bookingEditApiState === "inProgress"}
+					initialValue={activeBooking}
+					onFormSubmit={handleBookingEdit}
+					handleCancel={handleCancel}
+				/>
 			</CustomModal>
-			{/* <ReactToPrint content={() => printRef.current} /> */}
 			<div style={{ display: "none" }}>
 				<Print booking={activeBooking as StrapiResponseData<Booking>} ref={printRef} />
 			</div>
-			<Space className="sectionContainer" size={16} direction="vertical">
+			<Space className="sectionContainer bookingCalender" size={16} direction="vertical">
 				<Row className="sectionOneRow" wrap={false} align="middle" justify="space-around" gutter={[40, 0]}>
 					<Col span={12}>
 						<Calendar
 							defaultValue={selectedDate}
 							style={{ height: "350px" }}
 							fullscreen={false}
+							value={selectedDate}
+							className={""}
 							onChange={handleDateChange}
 							onPanelChange={onPanelChange}
 							dateCellRender={dateCellRender}
+							onSelect={(event) => setSelectedDate(event)}
 							mode="month"
 						/>
 					</Col>
 					<Col span={12}>
-						<Tabs className="tabContainer" defaultActiveKey="1" onChange={onTabChange}>
-							{activeBookings &&
-								activeBookings.map((booking, index) => {
+						{activeBookings && activeBookings.length > 0 && (
+							<Tabs className="tabContainer" defaultActiveKey="1" onChange={onTabChange}>
+								{activeBookings.map((booking, index) => {
 									const date = booking.attributes.trip?.data.attributes.tripDate;
 									const month = moment(date).format("MMMM");
 									const day = moment(date).date();
@@ -222,11 +238,13 @@ const Home: NextPage = () => {
 												onPrint={() => handleBookingPrinting(booking)}
 												onEdit={() => toggleEditForm(booking)}
 												bookingInfo={booking}
+												isLoading={isPrintLoading}
 											/>
 										</TabPane>
 									);
 								})}
-						</Tabs>
+							</Tabs>
+						)}
 					</Col>
 				</Row>
 				<>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Badge, Calendar } from "antd";
 import AppLayout from "../components/AppLayout";
-import { getBookingsByDate, getBookingsByMonth } from "../helpers/apiHandler";
+import { getBookingsByMonth } from "../helpers/apiHandler";
 import moment, { Moment } from "moment";
 import { findDateRange, getMonthlyTripDates } from "../helpers/dataFormatter";
 
@@ -15,7 +15,7 @@ const Planner = () => {
 		moment().endOf("month").format("YYYY-MM-DD"),
 	]);
 
-	const onPanelChange = (value: Moment, mode: any) => {
+	const onPanelChange = (value: Moment) => {
 		setDateRange(findDateRange(value));
 	};
 
@@ -37,7 +37,7 @@ const Planner = () => {
 								<Badge
 									size="small"
 									status="success"
-									text={`${attributes.trip?.data.attributes.source}-${attributes.trip?.data.attributes.destination} | ${attributes.client?.data.attributes.name}`}
+									text={`${attributes.trip?.data?.attributes?.source}-${attributes.trip?.data?.attributes?.destination} | ${attributes.client?.data?.attributes?.name}`}
 								/>
 							</li>
 						);
@@ -64,7 +64,7 @@ const Planner = () => {
 		<AppLayout>
 			<Calendar
 				dateCellRender={dateCellRender}
-				onSelect={(value) => console.log("THE VALUE IS CLICKED", value)}
+				// onSelect={(value) => console.log("THE VALUE IS CLICKED", value)}
 				onPanelChange={onPanelChange}
 			/>
 		</AppLayout>

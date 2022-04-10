@@ -70,3 +70,148 @@ ul li {
 .dailyBookings {
 	padding-left: 0;
 }
+
+/* custom styles added */
+.bookingCalender {
+    margin-top: 10px;
+}
+section.ant-layout {
+	background: #fff;
+}
+.booking-header.ant-layout-header {
+    height: auto;
+    background: #4bb2fd;
+    line-height: inherit;
+    /* padding-bottom: 5px; */
+}
+.booking-header .ant-col-6 {
+    flex: 0 0 auto;
+    max-width: inherit;
+}
+.booking-header a.ant-btn {
+    margin: 4px 15px;
+    color: #fff;
+    font-size: 16px;
+    padding: 0;
+}
+.booking-header a.ant-btn.active {
+    border-bottom: 2px solid;
+}
+.bookingCalender .ant-picker-calendar {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+	box-shadow: 2px 3px 5px #ddd;
+}
+.bookingCalender .ant-picker-calendar-header {
+	border-bottom: 1px solid #ddd;
+	padding: 20px;
+}
+.bookingCalender .ant-select-selector {
+    padding: 5px 10px !important;
+    height: auto !important;
+    min-width: 100px;
+}
+.bookingCalender .ant-radio-group-small .ant-radio-button-wrapper {
+    height: auto;
+    padding: 5px 30px;
+}
+.bookingCalender .ant-tabs-tab-active {
+    background: #4bb2fd;
+    color: #fff;
+    border-radius: 6px;
+}
+.bookingCalender .ant-tabs-nav-wrap .ant-tabs-tab-btn {
+    min-width: 110px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+.bookingCalender .ant-tabs-top.tabContainer {
+    border: 1px solid #ddd;
+    box-shadow: 2px 3px 5px #ddd;
+    border-radius: 6px;
+}
+.bookingCalender .ant-descriptions {
+    padding: 0 30px;
+}
+.bookingCalender .ant-tabs-nav-wrap .ant-tabs-tab {
+    margin-left: auto;
+}
+.bookingCalender .ant-tabs-tab-active.ant-tabs-tab .ant-tabs-tab-btn {
+	color: #fff;
+}
+button.ant-btn {
+    background: #4bb2fd;
+    color: #fff;
+    font-weight: bold;
+    border: 0;
+    height: auto;
+    padding: 8px 25px;
+    border-radius: 5px;
+}
+button.ant-btn:hover {
+    background: #1890ff;
+    color: #fff;
+}
+#bookingForm .ant-picker {
+    padding: 0 12px 0 0;
+}
+.bookingCalender h4.ant-typography {
+    color: #4bb2fd;
+    font-size: 30px;
+    margin: 30px 0 20px;
+}
+.bookingCalender #bookingForm {
+    border: 1px solid #ddd;
+    box-shadow: 2px 3px 5px #ddd;
+    border-radius: 6px;
+    padding: 30px 30px 10px 25px;
+	margin-bottom: 60px;
+}
+.bookingCalender #bookingForm input {
+    padding: 7px 12px;
+    border-radius: 5px;
+    height: inherit;
+}
+.ant-table-wrapper {
+    border: 1px solid #dbe6ee;
+	margin-bottom: 60px;
+}
+.ant-table-thead > tr > th {
+    border-right: 1px solid #ffffff;
+    background: #dbe6ee !important;
+}
+.ant-table-thead > tr > th:before {
+    content: none !important;
+}
+.ant-table-tbody > tr > td {border-right: 1px solid #dbe6ee;}
+.ant-table-pagination.ant-pagination {
+    margin: 0 !important;
+    padding: 22px 25px 0 0;
+}
+.ant-input-search .ant-input-group-addon button {
+    padding: 0 25px;
+    line-height: 32px;
+    font-size: 21px;
+	min-height: 32px;
+}
+.ant-picker {min-height: 37px; box-shadow: 1px 1px 5px #ddd;}
+.ant-table-cell button.ant-btn {
+    padding: 5px 15px;
+    font-size: 16px;
+}
+.anticon.anticon-delete {color: #fb4c4a;font-size: 16px;}
+
+.calendarActive {
+	width: 100%;
+	height: 2px;
+	border-radius: 100px;
+	background: green;
+	position: absolute;
+	left: 0;
+	right: 0;
+}
+
+.dailyBookings {
+	padding-left: 0;
+}

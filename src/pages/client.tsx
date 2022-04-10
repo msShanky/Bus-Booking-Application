@@ -1,6 +1,6 @@
 import { Button, Input, message, Popconfirm, Row, Space, Table } from "antd";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import { EditOutlined, DeleteOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import { CustomModal } from "../components/common/CustomModal";
@@ -8,14 +8,14 @@ import { ClientForm } from "../components/common/ClientForm";
 import { fetchClients, deleteClient, updateClient, createClient } from "../helpers/apiHandler";
 const { Search } = Input;
 
-type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
+// type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
-const Client: FunctionComponent<NextProps> = (props) => {
-	const { clients: preFetchedClients } = props;
+const Client: FunctionComponent = (props) => {
+	// const { clients: preFetchedClients } = props;
 	const [showEditPopUp, setShowEditPopUp] = useState(false);
 	const [activeItem, setActiveItem] = useState<StrapiResponseData<Client>>();
 	const [isLoading, setIsLoading] = useState(false);
-	const [clients, setClients] = useState(preFetchedClients);
+	const [clients, setClients] = useState<StrapiResponseData<Client>[]>([]);
 	const [isCreateForm, setIsCreateForm] = useState<boolean>();
 
 	const handleCancel = () => {
@@ -29,6 +29,12 @@ const Client: FunctionComponent<NextProps> = (props) => {
 		} = await fetchClients(queryValue);
 		setClients(data);
 	};
+
+	useEffect(() => {
+		setIsLoading(true);
+		handleClientFetch();
+		setIsLoading(false);
+	}, []);
 
 	const onSearch = async (value: string) => {
 		setIsLoading(true);
@@ -107,7 +113,7 @@ const Client: FunctionComponent<NextProps> = (props) => {
 						name: activeItem?.attributes.name ?? "",
 						contact: activeItem?.attributes.contact ?? "",
 						address: activeItem?.attributes.address ?? "",
-						booking: undefined,
+						booking: activeItem?.attributes.booking?.data?.id ?? undefined,
 					}}
 					handleFormSubmit={handleFormSubmit}
 					handleReset={handleCancel}
@@ -137,16 +143,16 @@ const Client: FunctionComponent<NextProps> = (props) => {
 	);
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	const {
-		data: { data },
-	} = await fetchClients();
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+// 	const {
+// 		data: { data },
+// 	} = await fetchClients();
 
-	return {
-		props: {
-			clients: data,
-		}, // will be passed to the page component as props
-	};
-};
+// 	return {
+// 		props: {
+// 			clients: data,
+// 		}, // will be passed to the page component as props
+// 	};
+// };
 
 export default Client;

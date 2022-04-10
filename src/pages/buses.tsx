@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import { Button, DatePicker, Input, message, Popconfirm, Row, Space, Table } from "antd";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
@@ -9,11 +9,11 @@ import { CustomModal, confirm } from "../components/common/CustomModal";
 import { BusForm } from "../components/common/BusForm";
 import { API_URL, createBus, deleteBus, fetchBuses } from "../helpers/apiHandler";
 
-type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
+// type NextProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
-const Buses: FunctionComponent<NextProps> = (props) => {
-	const { buses: preFetchedBuses } = props;
-	const [buses, setBuses] = useState(preFetchedBuses);
+const Buses: FunctionComponent = (props) => {
+	// const { buses: preFetchedBuses } = props;
+	const [buses, setBuses] = useState<StrapiResponseData<Bus>[]>([]);
 	const [showEditPopUp, setShowEditPopUp] = useState(false);
 	const [activeItem, setActiveItem] = useState<StrapiResponseData<Bus>>();
 	const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +31,15 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 		setBuses(data);
 	};
 
+	const handleBusFetch = async () => {
+		setIsLoading(true);
+		const {
+			data: { data },
+		} = await fetchBuses();
+		setBuses(data);
+		setIsLoading(false);
+	};
+
 	const handleFormSubmit = async (values: BusPostBody) => {
 		setIsLoading(true);
 		if (isCreateForm) {
@@ -41,12 +50,8 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 				data: values,
 			});
 		}
-		setIsLoading(false);
+		handleBusFetch();
 		setShowEditPopUp(false);
-		const {
-			data: { data },
-		} = await fetchBuses();
-		setBuses(data);
 	};
 
 	const handleConfirmation = async (record: StrapiResponseData<Bus>) => {
@@ -68,10 +73,10 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 	const columns = [
 		{ title: "ID", dataIndex: "id", key: "id" },
 		{ title: "Bus No", dataIndex: ["attributes", "busNumber"], key: "busNumber" },
-		{ title: "RC", dataIndex: ["attributes", "rc"], key: "rc" },
+		{ title: "Engine / Chase No", dataIndex: ["attributes", "rc"], key: "rc" },
 		{ title: "FC", dataIndex: ["attributes", "fc"], key: "fc" },
 		{ title: "Insurance", dataIndex: ["attributes", "insurance"], key: "insurance" },
-		{ title: "License", dataIndex: ["attributes", "license"], key: "license" },
+		{ title: "Tax No", dataIndex: ["attributes", "license"], key: "license" },
 		{
 			title: "Action",
 			key: "action",
@@ -98,6 +103,10 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 			),
 		},
 	];
+
+	useEffect(() => {
+		handleBusFetch();
+	}, []);
 
 	return (
 		<AppLayout>
@@ -128,16 +137,16 @@ const Buses: FunctionComponent<NextProps> = (props) => {
 	);
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	const {
-		data: { data },
-	} = await fetchBuses();
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+// 	const {
+// 		data: { data },
+// 	} = await fetchBuses();
 
-	return {
-		props: {
-			buses: data,
-		}, // will be passed to the page component as props
-	};
-};
+// 	return {
+// 		props: {
+// 			buses: data,
+// 		}, // will be passed to the page component as props
+// 	};
+// };
 
 export default Buses;
