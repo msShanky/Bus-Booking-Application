@@ -38,7 +38,8 @@ export const AppHeader = () => {
 		<Header className="booking-header">
 			<Row justify="space-between" align="middle">
 				<Col>
-					<div className="logo" />
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img width={150}  src={"/logo_gray.png"} alt="KNT Travels" />
 				</Col>
 				<Col span={pageLinks.length + 1}>
 					{pageLinks.map((pageLink, index) => {

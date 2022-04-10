@@ -42,14 +42,6 @@ const Home: NextPage = () => {
 	]);
 	const printRef = useRef<HTMLDivElement | null>(null);
 
-	// const handleAfterPrint = useCallback(() => {
-	// 	console.log("`onAfterPrint` called");
-	// }, []);
-
-	// const handleBeforePrint = useCallback(() => {
-	// 	console.log("`onBeforePrint` called");
-	// }, []);
-
 	const reactToPrintContent = useCallback(() => {
 		return printRef.current;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,8 +51,6 @@ const Home: NextPage = () => {
 		content: reactToPrintContent,
 		documentTitle: "AwesomeFileName",
 		removeAfterPrint: true,
-		// onBeforePrint: handleBeforePrint,
-		// onAfterPrint: handleAfterPrint,
 	});
 
 	const fetchBookingsByDate = async (date = moment()) => {
@@ -109,18 +99,14 @@ const Home: NextPage = () => {
 		return isBooked && <span className="calendarBooking" />;
 	};
 
-	// const dateFullCellRender = (date: Moment): ReactNode => {
-	// 	const cellDate = date.format("DD");
-	// 	const isBooked = availableBookings.includes(cellDate);
-	// 	return isBooked ? <span className="calendarBooking">{cellDate}</span> : <span className="">{cellDate}</span>;
-	// };
-
 	const fetchBookings = async () => {
 		const { data } = await getBookingsByMonth(dateRange);
 		const { data: strapiResponse } = data;
 		if (strapiResponse.length === 0) {
 			setBookings([]);
 			setAvailableBookings([]);
+			setActiveBookings(undefined)
+			setActiveBooking(undefined)
 			return;
 		}
 
@@ -158,10 +144,11 @@ const Home: NextPage = () => {
 
 	const handleBookingDelete = async (booking: StrapiResponseData<Booking>) => {
 		setActiveBooking(booking);
-		setIsLoading(true);
+		setIsLoading(true);		
 		try {
 			await deleteBooking(booking);
 			await fetchBookings();
+			setActiveBooking(undefined)
 			message.success(`Successfully deleted booking id: ${booking.id}`);
 			setIsLoading(false);
 		} catch (error) {
@@ -197,22 +184,15 @@ const Home: NextPage = () => {
 		setShowEditPopUp(!showEditPopUp);
 	};
 
-	// useEffect(() => {
-	// 	fetchBookings();
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [selectedDate, dateRange]);
-
 	useEffect(() => {
 		fetchBookings();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// console.log("The bookings array", bookings);
-
 	return (
 		<Layout>
 			<CustomModal
-				title="Buses"
+				title="Booking"
 				isVisible={showEditPopUp}
 				handleCancel={handleCancel}
 				isLoading={isLoading}
@@ -240,15 +220,14 @@ const Home: NextPage = () => {
 							onChange={handleDateChange}
 							onPanelChange={onPanelChange}
 							dateCellRender={dateCellRender}
-							// dateFullCellRender={dateFullCellRender}
 							onSelect={(event) => setSelectedDate(event)}
 							mode="month"
 						/>
 					</Col>
 					<Col span={12}>
-						<Tabs className="tabContainer" defaultActiveKey="1" onChange={onTabChange}>
-							{activeBookings &&
-								activeBookings.map((booking, index) => {
+						{activeBookings && activeBookings.length > 0 && (
+							<Tabs className="tabContainer" defaultActiveKey="1" onChange={onTabChange}>
+								{activeBookings.map((booking, index) => {
 									const date = booking.attributes.trip?.data.attributes.tripDate;
 									const month = moment(date).format("MMMM");
 									const day = moment(date).date();
@@ -264,7 +243,8 @@ const Home: NextPage = () => {
 										</TabPane>
 									);
 								})}
-						</Tabs>
+							</Tabs>
+						)}
 					</Col>
 				</Row>
 				<>

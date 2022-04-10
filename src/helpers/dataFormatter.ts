@@ -21,14 +21,14 @@ export const getFormattedInitialValues = (values: StrapiResponseData<Booking>) =
 	const formattedInitialValues = {
 		bookingState,
 		client: {
-			name: client?.data.attributes.name,
-			contact: client?.data.attributes.contact,
+			name: client?.data?.attributes.name,
+			contact: client?.data?.attributes.contact,
 		},
 		trip: {
-			source: trip?.data.attributes.source,
-			destination: trip?.data.attributes.destination,
-			tripDate: moment(trip?.data.attributes.tripDate, "YYYY-MM-DD"),
-			pickupTime: moment(trip?.data.attributes.pickupTime, "HH:mm:ss"),
+			source: trip?.data?.attributes.source,
+			destination: trip?.data?.attributes.destination,
+			tripDate: moment(trip?.data?.attributes.tripDate, "YYYY-MM-DD"),
+			pickupTime: moment(trip?.data?.attributes.pickupTime, "HH:mm:ss"),
 		},
 		estimated: {
 			kilometer,

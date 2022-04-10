@@ -45,7 +45,7 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 										<Typography>Name</Typography>
 									</Col>
 									<Col span={12}>
-										<Typography>{booking?.attributes.client?.data.attributes.name}</Typography>
+										<Typography>{booking?.attributes.client?.data?.attributes.name}</Typography>
 									</Col>
 								</Row>
 								{/* Contact */}
@@ -54,7 +54,7 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 										<Typography>Contact</Typography>
 									</Col>
 									<Col span={12}>
-										<Typography>{booking?.attributes.client?.data.attributes.contact}</Typography>
+										<Typography>{booking?.attributes.client?.data?.attributes.contact}</Typography>
 									</Col>
 								</Row>
 								{/* Address */}
@@ -63,7 +63,7 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 										<Typography>Address</Typography>
 									</Col>
 									<Col span={12}>
-										<Typography>{booking?.attributes.client?.data.attributes.address}</Typography>
+										<Typography>{booking?.attributes.client?.data?.attributes.address}</Typography>
 									</Col>
 								</Row>
 							</Col>
@@ -75,7 +75,7 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 										<Typography>From</Typography>
 									</Col>
 									<Col span={12}>
-										<Typography>{booking?.attributes.trip?.data.attributes.source}</Typography>
+										<Typography>{booking?.attributes.trip?.data?.attributes.source}</Typography>
 									</Col>
 								</Row>
 								{/* Place To */}
@@ -84,7 +84,7 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 										<Typography>To</Typography>
 									</Col>
 									<Col span={12}>
-										<Typography>{booking?.attributes.trip?.data.attributes.destination}</Typography>
+										<Typography>{booking?.attributes.trip?.data?.attributes.destination}</Typography>
 									</Col>
 								</Row>
 								{/* Pickup Date */}
@@ -94,7 +94,7 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 									</Col>
 									<Col span={12}>
 										<Typography>
-											{moment(booking?.attributes.trip?.data.attributes.tripDate).format("DD-MM-YYYY")}
+											{moment(booking?.attributes.trip?.data?.attributes.tripDate).format("DD-MM-YYYY")}
 										</Typography>
 									</Col>
 								</Row>
@@ -105,7 +105,7 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 									</Col>
 									<Col span={12}>
 										<Typography>
-											{booking?.attributes.trip?.data.attributes.pickupTime}
+											{booking?.attributes.trip?.data?.attributes.pickupTime}
 											{/* {moment(booking.attributes.trip?.data.attributes.pickupTime).format("HH:SS")} */}
 										</Typography>
 									</Col>

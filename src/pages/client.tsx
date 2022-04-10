@@ -113,7 +113,7 @@ const Client: FunctionComponent = (props) => {
 						name: activeItem?.attributes.name ?? "",
 						contact: activeItem?.attributes.contact ?? "",
 						address: activeItem?.attributes.address ?? "",
-						booking: activeItem?.attributes.booking?.data.id ?? undefined,
+						booking: activeItem?.attributes.booking?.data?.id ?? undefined,
 					}}
 					handleFormSubmit={handleFormSubmit}
 					handleReset={handleCancel}
