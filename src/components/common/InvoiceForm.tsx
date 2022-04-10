@@ -32,8 +32,6 @@ export const InvoiceForm: FunctionComponent<InvoiceFormProps> = (props) => {
 		handleFormSubmit(values);
 	};
 
-	console.log("the initial value received for invoice form", initialValues);
-
 	const values = getFormattedInitialValues(initialValues);
 
 	useEffect(() => form.resetFields(), [initialValues, form]);

@@ -42,24 +42,25 @@ const Home: NextPage = () => {
 	]);
 	const printRef = useRef<HTMLDivElement | null>(null);
 
-	const handleAfterPrint = useCallback(() => {
-		console.log("`onAfterPrint` called");
-	}, []);
+	// const handleAfterPrint = useCallback(() => {
+	// 	console.log("`onAfterPrint` called");
+	// }, []);
 
-	const handleBeforePrint = useCallback(() => {
-		console.log("`onBeforePrint` called");
-	}, []);
+	// const handleBeforePrint = useCallback(() => {
+	// 	console.log("`onBeforePrint` called");
+	// }, []);
 
 	const reactToPrintContent = useCallback(() => {
 		return printRef.current;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [printRef.current]);
 
 	const handlePrint = useReactToPrint({
 		content: reactToPrintContent,
 		documentTitle: "AwesomeFileName",
-		onBeforePrint: handleBeforePrint,
-		onAfterPrint: handleAfterPrint,
 		removeAfterPrint: true,
+		// onBeforePrint: handleBeforePrint,
+		// onAfterPrint: handleAfterPrint,
 	});
 
 	const fetchBookingsByDate = async (date = moment()) => {
@@ -115,18 +116,13 @@ const Home: NextPage = () => {
 	// };
 
 	const fetchBookings = async () => {
-		console.log(" ============== FETCHING BOOKINGS ============== ");
 		const { data } = await getBookingsByMonth(dateRange);
 		const { data: strapiResponse } = data;
 		if (strapiResponse.length === 0) {
-			// setActiveBookings(undefined);
-			// setActiveBooking(undefined);
 			setBookings([]);
 			setAvailableBookings([]);
 			return;
 		}
-
-		console.log("The strapi response", strapiResponse);
 
 		setActiveBookings(undefined);
 		setActiveBooking(undefined);
@@ -136,16 +132,13 @@ const Home: NextPage = () => {
 			const existingIndex = bookings.findIndex(({ id: bookingId }) => {
 				return bookingId === id;
 			});
-			console.log("The existing index value is", existingIndex);
 			if (existingIndex >= 0) {
-				console.log("the index is valid");
 				let updatedBookings = [];
 				if (existingIndex === 0) {
 					updatedBookings = [apiBooking];
 				} else {
 					updatedBookings = [...bookings.slice(0, existingIndex), apiBooking, ...bookings.slice(existingIndex)];
 				}
-				console.log("The updated bookings are", updatedBookings);
 				setBookings(updatedBookings);
 				const monthlyTripDates = getMonthlyTripDates(updatedBookings);
 				setAvailableBookings(monthlyTripDates);
@@ -155,9 +148,7 @@ const Home: NextPage = () => {
 			setBookings(updatedBookings);
 			const monthlyTripDates = getMonthlyTripDates(updatedBookings);
 			setAvailableBookings(monthlyTripDates);
-			console.log("The bookings state value is", bookings);
 		});
-		console.log(" ============== END FETCHING BOOKINGS ============== ");
 	};
 
 	const handleCancel = () => {

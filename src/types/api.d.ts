@@ -52,7 +52,7 @@ type Client = {
 	name: string;
 	address: string;
 	contact: string;
-	booking?: StrapiResponseData<Booking>;
+	booking?: StrapiPostBody<StrapiResponseData<Booking>>;
 };
 
 type ClientPostBody = Omit<Client, "booking"> & {

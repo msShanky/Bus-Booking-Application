@@ -132,9 +132,6 @@ export const fetchBookingsWithQuery = (query: string) => {
 };
 
 export const updateBooking = async (activeBooking: StrapiResponseData<Booking>, formValues: BookingFormValues) => {
-	console.log("The active booking information is", activeBooking);
-	console.log("The form values are", formValues);
-
 	let bookingId, tripId, clientId;
 	bookingId = activeBooking.id;
 	tripId = activeBooking.attributes.trip?.data.id;
@@ -162,8 +159,6 @@ export const updateBooking = async (activeBooking: StrapiResponseData<Booking>, 
 			tripDate: moment(date).format("YYYY-MM-DD"),
 		},
 	};
-	console.log("The pickup date received for editing is", date);
-	console.log("The post body for date editing is", tripUpdateBody);
 
 	await axios.put(`${API_URL}/trips/${tripId}`, tripUpdateBody);
 
