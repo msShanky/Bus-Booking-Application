@@ -16,166 +16,117 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 
 	return (
 		<div ref={ref}>
-			{/* {booking && ( */}
-			<Layout>
-				<Header
-					style={{
-						height: "80px",
-					}}
-				>
-					<Title style={{ color: "white", marginTop: "1em" }} level={3}>
-						Booking Invoice {booking?.id}
-					</Title>
-				</Header>
-				<Layout>
-					<Content style={{ paddingTop: "4em", minHeight: "100vh" }}>
-						<Row
-							style={{
-								width: "90%",
-								margin: "0 3em",
-							}}
-							align="top"
-							justify="center"
-						>
-							<Col span={12}>
-								<Title level={5}>Client Information</Title>
-								{/* Name */}
-								<Row style={{ marginTop: "2em" }} align="middle" justify="space-between">
-									<Col span={12}>
-										<Typography>Name</Typography>
-									</Col>
-									<Col span={12}>
-										<Typography>{booking?.attributes.client?.data?.attributes.name}</Typography>
-									</Col>
-								</Row>
-								{/* Contact */}
-								<Row style={{ marginTop: "2em" }} align="middle" justify="space-between">
-									<Col span={12}>
-										<Typography>Contact</Typography>
-									</Col>
-									<Col span={12}>
-										<Typography>{booking?.attributes.client?.data?.attributes.contact}</Typography>
-									</Col>
-								</Row>
-								{/* Address */}
-								<Row style={{ marginTop: "2em" }} align="middle" justify="space-between">
-									<Col span={12}>
-										<Typography>Address</Typography>
-									</Col>
-									<Col span={12}>
-										<Typography>{booking?.attributes.client?.data?.attributes.address}</Typography>
-									</Col>
-								</Row>
-							</Col>
-							<Col span={12}>
-								<Title level={5}>Trip Information</Title>
-								{/* Place From */}
-								<Row style={{ marginTop: "2em" }} align="middle" justify="space-between">
-									<Col span={12}>
-										<Typography>From</Typography>
-									</Col>
-									<Col span={12}>
-										<Typography>{booking?.attributes.trip?.data?.attributes.source}</Typography>
-									</Col>
-								</Row>
-								{/* Place To */}
-								<Row style={{ marginTop: "2em" }} align="middle" justify="space-between">
-									<Col span={12}>
-										<Typography>To</Typography>
-									</Col>
-									<Col span={12}>
-										<Typography>{booking?.attributes.trip?.data?.attributes.destination}</Typography>
-									</Col>
-								</Row>
-								{/* Pickup Date */}
-								<Row style={{ marginTop: "2em" }} align="middle" justify="space-between">
-									<Col span={12}>
-										<Typography>Pickup Date</Typography>
-									</Col>
-									<Col span={12}>
-										<Typography>
-											{moment(booking?.attributes.trip?.data?.attributes.tripDate).format("DD-MM-YYYY")}
-										</Typography>
-									</Col>
-								</Row>
-								{/* Place To */}
-								<Row style={{ marginTop: "2em" }} align="middle" justify="space-between">
-									<Col span={12}>
-										<Typography>Pickup Time</Typography>
-									</Col>
-									<Col span={12}>
-										<Typography>
-											{booking?.attributes.trip?.data?.attributes.pickupTime}
-											{/* {moment(booking.attributes.trip?.data.attributes.pickupTime).format("HH:SS")} */}
-										</Typography>
-									</Col>
-								</Row>
-							</Col>
-						</Row>
-						<Row style={{ width: "90%", margin: "0 auto" }}>
-							<Descriptions
-								labelStyle={{ background: "#40a9ff" }}
-								style={{ marginTop: "2em" }}
-								title="Estimated Information"
-								bordered
-							>
-								<Descriptions.Item span={2} label="Booking Status">
-									{booking?.attributes.bookingState}
-								</Descriptions.Item>
-								<Descriptions.Item span={2} label="Kilometer">
-									{booking?.attributes.kilometer}
-								</Descriptions.Item>
-								<Descriptions.Item span={2} label="Diesel">
-									{booking?.attributes.diesel}
-								</Descriptions.Item>
-								<Descriptions.Item span={2} label="Fast Tag">
-									{booking?.attributes.fasttag}
-								</Descriptions.Item>
-								<Descriptions.Item span={2} label="Quoted Prize">
-									{booking?.attributes.quotedPrice}
-								</Descriptions.Item>
-								<Descriptions.Item span={2} label="Advance Paid">
-									{booking?.attributes.quotedPrice}
-								</Descriptions.Item>
-								<Descriptions.Item span={2} label="Balance Amount">
-									{booking?.attributes.balanceAmount}
-								</Descriptions.Item>
-							</Descriptions>
-						</Row>
-						<Row style={{ width: "90%", margin: "0 auto" }}>
-							{booking?.attributes.invoice?.data && (
-								<Descriptions
-									labelStyle={{ background: "#40a9ff" }}
-									style={{ marginTop: "2em" }}
-									title="Invoice Information"
-									bordered
-								>
-									<Descriptions.Item span={2} label="Invoice Date">
-										{booking.attributes.invoice?.data.attributes.invoiceDate}
-									</Descriptions.Item>
-									<Descriptions.Item span={2} label="Kilometer">
-										{booking.attributes.invoice?.data.attributes.kilometer}
-									</Descriptions.Item>
-									<Descriptions.Item span={2} label="Diesel">
-										{booking.attributes.invoice?.data.attributes.kilometer}
-									</Descriptions.Item>
-									<Descriptions.Item span={2} label="Diesel Cost">
-										{booking.attributes.invoice?.data.attributes.dieselCost}
-									</Descriptions.Item>
-									<Descriptions.Item span={2} label="Milage">
-										{booking.attributes.invoice?.data.attributes.milage}
-									</Descriptions.Item>
-									<Descriptions.Item span={2} label="Total Amount">
-										{booking.attributes.invoice?.data.attributes.totalAmount}
-									</Descriptions.Item>
-								</Descriptions>
-							)}
-						</Row>
-					</Content>
-				</Layout>
-				{/* <Footer>footer</Footer> */}
-			</Layout>
-			{/* )} */}
+			<div style={{ padding: '10px 30px 30px' }}>
+				<img width={200} src={"/logo.png"} alt="KNT Travels" />
+				<h2 style={{ textAlign: 'right', fontSize: '30px', letterSpacing: '1px' }}>Invoice</h2>
+				<div className="invoice-container">
+					<div>
+						<h2>Client Information</h2>
+						<table className="invoicetable">
+							<tr>
+								<th>Invoice Number</th>
+								<td>{booking?.id}</td>
+							</tr>
+							<tr>
+								<th>Name</th>
+								<td>{booking?.attributes.client?.data?.attributes.name}</td>
+							</tr>
+							<tr>
+								<th>Contact</th>
+								<td>{booking?.attributes.client?.data?.attributes.contact}</td>
+							</tr>
+							<tr>
+								<th>Address</th>
+								<td>{booking?.attributes.client?.data?.attributes.address}</td>
+							</tr>
+						</table>
+					</div>
+					<div>
+						<h2>Trip Information</h2>
+						<table className="invoicetable">
+							<tr>
+								<th>From</th>
+								<td>{booking?.attributes.trip?.data?.attributes.source}</td>
+							</tr>
+							<tr>
+								<th>To</th>
+								<td>{booking?.attributes.trip?.data?.attributes.destination}</td>
+							</tr>
+							<tr>
+								<th>Pickup Date</th>
+								<td>{moment(booking?.attributes.trip?.data?.attributes.tripDate).format("DD-MM-YYYY")}</td>
+							</tr>
+							<tr>
+								<th>Pickup Time</th>
+								<td>{booking?.attributes.trip?.data?.attributes.pickupTime}</td>
+							</tr>
+						</table>
+					</div>
+					<div className="fullwidth">
+						<h2>Estimated Information</h2>
+						<table className="invoicetable">
+							<tr>
+								<th>Booking Status</th>
+								<td>{booking?.attributes.bookingState}</td>
+							</tr>
+							<tr>
+								<th>Kilometer</th>
+								<td>{booking?.attributes.kilometer} KM</td>
+							</tr>
+							<tr>
+								<th>Diesel</th>
+								<td>{booking?.attributes.diesel} Ltr</td>
+							</tr>
+							<tr>
+								<th>Fast Tag</th>
+								<td>{booking?.attributes.fasttag} Rs</td>
+							</tr>
+							<tr>
+								<th>Quoted Prize</th>
+								<td>{booking?.attributes.quotedPrice} Rs</td>
+							</tr>
+							<tr>
+								<th>Advance Paid</th>
+								<td>{booking?.attributes.advancePaid} Rs</td>
+							</tr>
+							<tr style={{ background: '#ccc' }}>
+								<th>Balance Amount</th>
+								<td><strong>{booking?.attributes.balanceAmount} Rs</strong></td>
+							</tr>
+						</table>
+					</div>
+					<div className="fullwidth" style={{ marginTop: '240px' }}>
+						<h2>Invoice Information</h2>
+						{booking?.attributes.invoice?.data && (
+							<table className="invoicetable">
+								<tr>
+									<th>Invoice Date</th>
+									<td>{booking.attributes.invoice?.data.attributes.invoiceDate}</td>
+								</tr>
+								<tr>
+									<th>Kilometer</th>
+									<td>{booking.attributes.invoice?.data.attributes.kilometer} KM</td>
+								</tr>
+								<tr>
+									<th>Diesel Cost</th>
+									<td>{booking.attributes.invoice?.data.attributes.dieselCost} Rs</td>
+								</tr>
+								<tr>
+									<th>Milage</th>
+									<td>{booking.attributes.invoice?.data.attributes.milage}</td>
+								</tr>
+								<tr style={{ background: '#ccc' }}>
+									<th>Total Amount</th>
+									<td><strong>{booking.attributes.invoice?.data.attributes.totalAmount} Rs</strong></td>
+								</tr>
+							</table>
+						)}
+					</div>
+				</div>
+				<div className="footer-cont">
+					<p style={{ fontSize: '15px' }}>Thanks for choosing  <a href="#" style={{ color: '#4bb2fd' }}>KNT Travels</a></p>
+				</div>
+			</div>
 		</div>
 	);
 });

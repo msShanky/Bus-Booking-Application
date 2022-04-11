@@ -39,7 +39,7 @@ export const AppHeader = () => {
 			<Row justify="space-between" align="middle">
 				<Col>
 					{/* eslint-disable-next-line @next/next/no-img-element */}
-					<img width={150}  src={"/logo_gray.png"} alt="KNT Travels" />
+					<img className="logogrey" src={"/logo_gray.png"} alt="KNT Travels" />
 				</Col>
 				<Col span={pageLinks.length + 1}>
 					{pageLinks.map((pageLink, index) => {

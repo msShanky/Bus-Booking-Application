@@ -1,145 +1,167 @@
 html,
 body {
-	padding: 0;
-	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
-		Helvetica Neue, sans-serif;
+    padding: 0;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans,
+        Helvetica Neue, sans-serif;
 }
 
 a {
-	color: inherit;
-	text-decoration: none;
+    color: inherit;
+    text-decoration: none;
 }
 
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .reset ul.reset,
 ul.reset li,
 ul.reset ul li {
-	margin: 0;
-	padding: 0;
-	text-indent: 0;
-	list-style-type: 0;
+    margin: 0;
+    padding: 0;
+    text-indent: 0;
+    list-style-type: 0;
 }
+
 ul li {
-	list-style: none;
-	padding: 0;
-	margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .logo {
-	float: left;
-	width: 120px;
-	height: 31px;
-	margin: 16px 24px 16px 0;
-	background: rgba(255, 255, 255, 0.3);
+    float: left;
+    width: 120px;
+    height: 31px;
+    margin: 16px 24px 16px 0;
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .app-container {
-	max-width: 1222px;
-	margin: auto;
-	height: 93vh;
-	margin-top: 3em;
-	width: 100%;
+    max-width: 1222px;
+    margin: auto;
+    height: 93vh;
+    margin-top: 3em;
+    width: 100%;
 }
 
 .sectionContainer {
-	margin-top: 3em;
+    margin-top: 3em;
 }
 
 .sectionOneRow {
-	height: 350px;
+    height: 350px;
 }
 
 .tabContainer {
-	height: 350px;
+    height: 350px;
 }
 
 .calendarBooking {
-	width: 100%;
-	height: 2px;
-	border-radius: 100px;
-	background: green;
-	position: absolute;
-	left: 0;
-	right: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 100px;
+    background: green;
+    position: absolute;
+    left: 0;
+    right: 0;
 }
 
 .dailyBookings {
-	padding-left: 0;
+    padding-left: 0;
 }
 
 /* custom styles added */
+.logogrey {
+    width: 125px;
+    padding-bottom: 10px;
+}
+
 .bookingCalender {
     margin-top: 10px;
 }
+
 section.ant-layout {
-	background: #fff;
+    background: #fff;
 }
+
 .booking-header.ant-layout-header {
     height: auto;
     background: #4bb2fd;
     line-height: inherit;
     /* padding-bottom: 5px; */
 }
+
 .booking-header .ant-col-6 {
     flex: 0 0 auto;
     max-width: inherit;
 }
+
 .booking-header a.ant-btn {
     margin: 4px 15px;
     color: #fff;
     font-size: 16px;
     padding: 0;
 }
+
 .booking-header a.ant-btn.active {
     border-bottom: 2px solid;
 }
+
 .bookingCalender .ant-picker-calendar {
     border: 1px solid #ddd;
     border-radius: 10px;
-	box-shadow: 2px 3px 5px #ddd;
+    box-shadow: 2px 3px 5px #ddd;
 }
+
 .bookingCalender .ant-picker-calendar-header {
-	border-bottom: 1px solid #ddd;
-	padding: 20px;
+    border-bottom: 1px solid #ddd;
+    padding: 20px;
 }
+
 .bookingCalender .ant-select-selector {
     padding: 5px 10px !important;
     height: auto !important;
     min-width: 100px;
 }
+
 .bookingCalender .ant-radio-group-small .ant-radio-button-wrapper {
     height: auto;
     padding: 5px 30px;
 }
+
 .bookingCalender .ant-tabs-tab-active {
     background: #4bb2fd;
     color: #fff;
     border-radius: 6px;
 }
+
 .bookingCalender .ant-tabs-nav-wrap .ant-tabs-tab-btn {
     min-width: 110px;
     text-align: center;
     font-size: 16px;
     font-weight: bold;
 }
+
 .bookingCalender .ant-tabs-top.tabContainer {
     border: 1px solid #ddd;
     box-shadow: 2px 3px 5px #ddd;
     border-radius: 6px;
 }
+
 .bookingCalender .ant-descriptions {
     padding: 0 30px;
 }
+
 .bookingCalender .ant-tabs-nav-wrap .ant-tabs-tab {
     margin-left: auto;
 }
+
 .bookingCalender .ant-tabs-tab-active.ant-tabs-tab .ant-tabs-tab-btn {
-	color: #fff;
+    color: #fff;
 }
+
 button.ant-btn {
     background: #4bb2fd;
     color: #fff;
@@ -149,69 +171,263 @@ button.ant-btn {
     padding: 8px 25px;
     border-radius: 5px;
 }
+
 button.ant-btn:hover {
     background: #1890ff;
     color: #fff;
 }
+
 #bookingForm .ant-picker {
     padding: 0 12px 0 0;
 }
+
 .bookingCalender h4.ant-typography {
     color: #4bb2fd;
     font-size: 30px;
     margin: 30px 0 20px;
 }
+
 .bookingCalender #bookingForm {
     border: 1px solid #ddd;
     box-shadow: 2px 3px 5px #ddd;
     border-radius: 6px;
     padding: 30px 30px 10px 25px;
-	margin-bottom: 60px;
+    margin-bottom: 60px;
 }
+
 .bookingCalender #bookingForm input {
     padding: 7px 12px;
     border-radius: 5px;
     height: inherit;
 }
+
 .ant-table-wrapper {
     border: 1px solid #dbe6ee;
-	margin-bottom: 60px;
+    margin-bottom: 60px;
 }
-.ant-table-thead > tr > th {
+
+.ant-table-thead>tr>th {
     border-right: 1px solid #ffffff;
     background: #dbe6ee !important;
 }
-.ant-table-thead > tr > th:before {
+
+.ant-table-thead>tr>th:before {
     content: none !important;
 }
-.ant-table-tbody > tr > td {border-right: 1px solid #dbe6ee;}
+
+.ant-table-tbody>tr>td {
+    border-right: 1px solid #dbe6ee;
+}
+
 .ant-table-pagination.ant-pagination {
     margin: 0 !important;
     padding: 22px 25px 0 0;
 }
+
 .ant-input-search .ant-input-group-addon button {
     padding: 0 25px;
     line-height: 32px;
     font-size: 21px;
-	min-height: 32px;
+    min-height: 32px;
 }
-.ant-picker {min-height: 37px; box-shadow: 1px 1px 5px #ddd;}
+
+.ant-picker {
+    min-height: 37px;
+    box-shadow: 1px 1px 5px #ddd;
+}
+
 .ant-table-cell button.ant-btn {
     padding: 5px 15px;
     font-size: 16px;
 }
-.anticon.anticon-delete {color: #fb4c4a;font-size: 16px;}
+
+.anticon.anticon-delete {
+    color: #fb4c4a;
+    font-size: 16px;
+}
 
 .calendarActive {
-	width: 100%;
-	height: 2px;
-	border-radius: 100px;
-	background: green;
-	position: absolute;
-	left: 0;
-	right: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 100px;
+    background: green;
+    position: absolute;
+    left: 0;
+    right: 0;
 }
 
 .dailyBookings {
-	padding-left: 0;
+    padding-left: 0;
+}
+
+#bookingForm_date,
+#bookingForm_time {
+    padding-left: 10px;
+}
+
+.invoice-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.invoice-container>div {
+    width: 50%;
+}
+
+.invoice-container>div.fullwidth {
+    width: 100%;
+}
+
+.invoice-container>div:nth-child(2) {
+    padding-left: 20px;
+}
+
+.invoice-container h2 {
+    font-size: 22px;
+}
+
+.invoicetable {
+    width: 100%;
+    margin: 20px 0 30px;
+}
+
+.invoicetable th,
+.invoicetable td {
+    font-size: 15px;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+/* responsive styles starts here */
+
+@media screen and (min-width: 320px) and (max-width: 767px) {
+    .booking-header .ant-col-6 {
+        text-align: center;
+    }
+
+    .booking-header .ant-col {
+        width: 100%;
+        text-align: center;
+    }
+
+    .logo {
+        margin: 15px auto;
+        float: none;
+    }
+
+    .bookingCalender .sectionOneRow {
+        flex-wrap: wrap;
+        height: auto;
+    }
+
+    .bookingCalender .sectionOneRow .ant-col {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 30px;
+    }
+
+    .app-container {
+        margin-top: 15px;
+        padding: 10px 20px 20px;
+    }
+
+    .booking-header.ant-layout-header {
+        padding-bottom: 10px;
+    }
+
+    .bookingCalender .ant-picker-calendar {
+        height: auto !important;
+    }
+
+    .bookingCalender h4.ant-typography {
+        margin: 0;
+    }
+
+    .bookingCalender #bookingForm {
+        padding: 20px;
+    }
+
+    #bookingForm .ant-row {
+        flex-wrap: wrap;
+        flex-direction: column;
+        margin-bottom: 10px;
+    }
+
+    .bookingCalender #bookingForm .ant-col {
+        width: 100% !important;
+    }
+
+    .ant-input-group-wrapper {
+        width: 100% !important;
+        margin-bottom: 20px;
+    }
+
+    .bookingCalender .ant-tabs-top.tabContainer {
+        height: auto;
+    }
+
+    .ant-table-wrapper {
+        overflow: auto;
+    }
+
+    #clientForm,
+    #clientForm .ant-col {
+        width: 100% !important;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width:1024px) {
+    .booking-header .ant-col-6 {
+        text-align: center;
+    }
+
+    .bookingCalender .sectionOneRow {
+        flex-wrap: wrap;
+        height: auto;
+    }
+
+    .bookingCalender .sectionOneRow .ant-col {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 30px;
+    }
+
+    .app-container {
+        margin-top: 15px;
+        padding: 10px 20px 20px;
+    }
+
+    .booking-header.ant-layout-header {
+        padding-bottom: 10px;
+    }
+
+    .bookingCalender .ant-picker-calendar {
+        height: auto !important;
+    }
+
+    .bookingCalender h4.ant-typography {
+        margin: 0;
+    }
+
+    .bookingCalender #bookingForm {
+        padding: 20px;
+    }
+
+    #bookingForm .ant-row {
+        margin-bottom: 10px;
+    }
+
+    .ant-input-group-wrapper {
+        width: 100% !important;
+        margin-bottom: 20px;
+    }
+
+    .bookingCalender .ant-tabs-top.tabContainer {
+        height: auto;
+    }
+
+    .ant-table-wrapper {
+        overflow: auto;
+    }
 }

@@ -24,7 +24,7 @@ const TabActionTray = (props: TripDescriptionProps) => {
 				title="Are you sure, you you be deleting all related items?"
 				icon={<QuestionCircleOutlined />}
 			>
-				<Button>Delete</Button>
+				<Button danger type="primary">Delete</Button>
 			</Popconfirm>
 			<Button loading={isLoading} onClick={onPrint}>
 				Print
@@ -44,7 +44,7 @@ export const TripDescription: FunctionComponent<TripDescriptionProps> = (props) 
 				<Descriptions.Item label="Name">{client?.data?.attributes.name}</Descriptions.Item>
 				<Descriptions.Item label="Date">{trip?.data?.attributes.tripDate}</Descriptions.Item>
 				<Descriptions.Item label="Place">
-					<br />
+					{/* <br /> */}
 					From: {trip?.data?.attributes.source}
 					<br />
 					To:{trip?.data?.attributes.destination}
