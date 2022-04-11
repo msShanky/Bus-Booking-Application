@@ -167,8 +167,8 @@ export const BookingForm: FunctionComponent<BookingFormProps> = (props) => {
 					<Space style={{ width: "100%" }} size={16}>
 						<Button loading={isLoading} type="primary" htmlType="submit">
 							{isCreateForm ? "Add" : "Update"}
-						</Button>						
-						<Button type="default" htmlType="reset">
+						</Button>
+						<Button type="primary" danger htmlType="reset">
 							Cancel
 						</Button>
 					</Space>
