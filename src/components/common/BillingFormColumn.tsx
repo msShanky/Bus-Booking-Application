@@ -15,7 +15,7 @@ export const billingFormColumns = (props: ColumnPropType) => {
 		{ title: "ID", dataIndex: "id", key: "id" },
 		{
 			title: "Invoice Date",
-			key: "invoiceDate",
+			key: "invoiceTime",
 			dataIndex: ["attributes", "invoice", "data", "attributes", "invoiceDate"],
 			render: (record: string) => {
 				return <Typography>{record && moment(record).format("DD-MM-YYYY")}</Typography>;

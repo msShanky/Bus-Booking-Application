@@ -54,7 +54,7 @@ export const getClientInfo = (values: BookingFormValues): Client => {
 	return {
 		name: values.name,
 		contact: values.contact,
-		address: "",
+		address: values.address
 	};
 };
 

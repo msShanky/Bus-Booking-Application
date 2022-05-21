@@ -15,4 +15,5 @@ export type BookingFormValues = {
 	quotedPrice: number;
 	advancePaid: number;
 	balanceAmount: number;
+	address: string;
 };
