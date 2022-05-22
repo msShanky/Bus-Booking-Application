@@ -2,6 +2,7 @@ import { Button, Col, DatePicker, Form, Input, InputNumber, Row, Select, Space, 
 import React, { FunctionComponent, useEffect } from "react";
 import { BookingFormValues } from "../types/BookingForm";
 import moment from "moment";
+import TextArea from "antd/lib/input/TextArea";
 
 type BookingFormProps = {
 	onFormSubmit: (formValues: BookingFormValues) => void;
@@ -65,6 +66,7 @@ export const BookingForm: FunctionComponent<BookingFormProps> = (props) => {
 			from: initialValue?.attributes.trip?.data.attributes.destination ?? "",
 			to: initialValue?.attributes.trip?.data.attributes.source ?? "",
 		},
+		address: initialValue?.attributes.client?.data?.attributes.address ?? "",
 	};
 
 	useEffect(() => {
@@ -120,6 +122,13 @@ export const BookingForm: FunctionComponent<BookingFormProps> = (props) => {
 						{/* addonBefore={prefixSelector} */}
 						<InputNumber style={{ width: "100%" }} />
 					</Form.Item>
+					<Form.Item
+						name="address"
+						label="Address"
+						rules={[{ required: true, message: "Please enter the customer address!" }]}
+					>
+						<TextArea style={{ width: "100%" }} />
+					</Form.Item>
 				</Col>
 				<Col style={{ width: "50%" }}>
 					<Form.Item
@@ -160,6 +169,7 @@ export const BookingForm: FunctionComponent<BookingFormProps> = (props) => {
 					<Form.Item shouldUpdate name="balanceAmount" label="Balance Amount">
 						<InputNumber readOnly style={{ width: "100%" }} />
 					</Form.Item>
+
 				</Col>
 			</Row>
 			<Form.Item style={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>

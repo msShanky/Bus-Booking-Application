@@ -4,20 +4,30 @@ import AppLayout from "../components/AppLayout";
 import { getBookingsByMonth } from "../helpers/apiHandler";
 import moment, { Moment } from "moment";
 import { findDateRange, getMonthlyTripDates } from "../helpers/dataFormatter";
+import { CalendarMode } from "antd/lib/calendar/generateCalendar";
 
 type BookingType = Array<StrapiResponseData<Booking>>;
 
 const Planner = () => {
 	const [bookings, setBookings] = useState<BookingType>([]);
 	const [availableBookings, setAvailableBookings] = useState<Array<string>>([]);
+	const [mode, setMode] = useState<CalendarMode>('month')
 	const [dateRange, setDateRange] = useState([
 		moment().startOf("month").format("YYYY-MM-DD"),
 		moment().endOf("month").format("YYYY-MM-DD"),
 	]);
 
-	const onPanelChange = (value: Moment) => {
+	const onPanelChange = (value: Moment, mode: CalendarMode) => {
 		setDateRange(findDateRange(value));
+		setMode(mode);
 	};
+
+	const onMonthSelect = (value: Moment) => {
+		if (mode === 'year') {
+			setMode('month')
+			setDateRange(findDateRange(value))
+		}
+	}
 
 	const dateCellRender = (cellDate: Moment) => {
 		const cellDateFormatted = cellDate.format("YYYY-MM-DD");
@@ -51,7 +61,7 @@ const Planner = () => {
 		const fetchBookings = async () => {
 			const { data } = await getBookingsByMonth(dateRange);
 			const { data: strapiResponse } = data;
-			const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
+			const updatedBookings: Array<StrapiResponseData<Booking>> = [...strapiResponse];
 			setBookings(updatedBookings);
 			const monthlyTripDates = getMonthlyTripDates(updatedBookings);
 			setAvailableBookings(monthlyTripDates);
@@ -64,8 +74,9 @@ const Planner = () => {
 		<AppLayout>
 			<Calendar
 				dateCellRender={dateCellRender}
-				// onSelect={(value) => console.log("THE VALUE IS CLICKED", value)}
+				onSelect={onMonthSelect}
 				onPanelChange={onPanelChange}
+				mode={mode}
 			/>
 		</AppLayout>
 	);

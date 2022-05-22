@@ -87,6 +87,7 @@ const Home: NextPage = () => {
 				},
 			} = await createClient(getClientInfo(formValues));
 			await createBooking(formValues, tripId, clientId);
+			fetchBookings()
 			setApiState("success");
 		} catch (error) {
 			setApiState("error");
