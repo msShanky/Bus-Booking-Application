@@ -37,6 +37,8 @@ export const TripDescription: FunctionComponent<TripDescriptionProps> = (props) 
 	const { bookingInfo, onDelete, onEdit, onPrint } = props;
 	const { id, attributes } = bookingInfo;
 	const { trip, client, kilometer, diesel, quotedPrice, advancePaid, balanceAmount } = attributes;
+	const pickupTimelastIndex = trip?.data?.attributes.pickupTime.lastIndexOf(':');
+	const formattedTime = trip?.data?.attributes.pickupTime.slice(0, pickupTimelastIndex);
 	return (
 		<>
 			{/* <Descriptions layout="horizontal" extra={<TabActionTray loading={isLoading} onDelete={onDelete} onEdit={onEdit} onPrint={onPrint} />}> */}
@@ -49,7 +51,7 @@ export const TripDescription: FunctionComponent<TripDescriptionProps> = (props) 
 					<br />
 					To:{trip?.data?.attributes.destination}
 				</Descriptions.Item>
-				<Descriptions.Item label="Time">{trip?.data?.attributes.pickupTime}</Descriptions.Item>
+				<Descriptions.Item label="Time">{formattedTime}</Descriptions.Item>
 				<Descriptions.Item label="Estimate">{kilometer} kms</Descriptions.Item>
 				<Descriptions.Item label="Diesel">{diesel} litres</Descriptions.Item>
 				<Descriptions.Item label="Bill No">{id}</Descriptions.Item>
