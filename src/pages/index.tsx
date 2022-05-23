@@ -87,7 +87,7 @@ const Home: NextPage = () => {
 				},
 			} = await createClient(getClientInfo(formValues));
 			await createBooking(formValues, tripId, clientId);
-			fetchBookings()
+			await fetchBookings();
 			setApiState("success");
 		} catch (error) {
 			setApiState("error");
@@ -97,6 +97,8 @@ const Home: NextPage = () => {
 	const dateCellRender = (date: Moment): ReactNode => {
 		const cellDate = date.format("YYYY-MM-DD");
 		const isBooked = availableBookings.includes(cellDate);
+		console.log("THE DATES BOOKED ARE => ", cellDate);		
+		console.log("THE BOOKING STATUS FOR THE DATE => ", isBooked);		
 		return isBooked && <span className="calendarBooking" />;
 	};
 
@@ -106,8 +108,8 @@ const Home: NextPage = () => {
 		if (strapiResponse.length === 0) {
 			setBookings([]);
 			setAvailableBookings([]);
-			setActiveBookings(undefined)
-			setActiveBooking(undefined)
+			setActiveBookings(undefined);
+			setActiveBooking(undefined);
 			return;
 		}
 
@@ -116,9 +118,11 @@ const Home: NextPage = () => {
 
 		strapiResponse.forEach((apiBooking) => {
 			const { id } = apiBooking;
+			// Checks if the booking is present in the booking state value
 			const existingIndex = bookings.findIndex(({ id: bookingId }) => {
 				return bookingId === id;
 			});
+			// TODO: Read and add more description via comments
 			if (existingIndex >= 0) {
 				let updatedBookings = [];
 				if (existingIndex === 0) {
@@ -127,13 +131,18 @@ const Home: NextPage = () => {
 					updatedBookings = [...bookings.slice(0, existingIndex), apiBooking, ...bookings.slice(existingIndex)];
 				}
 				setBookings(updatedBookings);
+				console.log("MONTHLY BOOKINGS UPDATED *********** ", updatedBookings);				
 				const monthlyTripDates = getMonthlyTripDates(updatedBookings);
+				console.log("MONTHLY TRIP DATES *********** ", monthlyTripDates);				
 				setAvailableBookings(monthlyTripDates);
 				return;
 			}
+			// Updates the local state and works with 
 			const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
 			setBookings(updatedBookings);
+			console.log("UPDATED BOOKINGS FOR NEW BOOKING *********** ", updatedBookings);				
 			const monthlyTripDates = getMonthlyTripDates(updatedBookings);
+			console.log("MONTHLY TRIP DATES FOR NEW BOOKING *********** ", monthlyTripDates);				
 			setAvailableBookings(monthlyTripDates);
 		});
 	};
@@ -145,11 +154,11 @@ const Home: NextPage = () => {
 
 	const handleBookingDelete = async (booking: StrapiResponseData<Booking>) => {
 		setActiveBooking(booking);
-		setIsLoading(true);		
+		setIsLoading(true);
 		try {
 			await deleteBooking(booking);
 			await fetchBookings();
-			setActiveBooking(undefined)
+			setActiveBooking(undefined);
 			message.success(`Successfully deleted booking id: ${booking.id}`);
 			setIsLoading(false);
 		} catch (error) {

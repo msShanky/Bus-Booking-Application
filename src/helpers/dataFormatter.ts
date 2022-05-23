@@ -9,7 +9,7 @@ export const getMonthlyTripDates = (response: Array<StrapiResponseData<Booking>>
 		if (dateList.includes(date as string)) return;
 		dateList.push(date as string);
 	});
-
+	console.log("THE DATE LIST PROVIDED => ", dateList);	
 	return dateList;
 };
 
