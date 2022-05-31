@@ -58,7 +58,7 @@ const Home: NextPage = () => {
 		try {
 			const { data } = await getBookingsByDate(date);
 			setActiveBookings(data.data);
-		} catch (error) {}
+		} catch (error) { }
 	};
 
 	const onPanelChange = (value: any, mode: any) => {
@@ -71,7 +71,7 @@ const Home: NextPage = () => {
 		setDateRange(findDateRange(value));
 	};
 
-	const onTabChange = (event: any) => {};
+	const onTabChange = (event: any) => { };
 
 	const handleBookingForm = async (formValues: BookingFormValues) => {
 		setApiState("inProgress");
@@ -97,8 +97,8 @@ const Home: NextPage = () => {
 	const dateCellRender = (date: Moment): ReactNode => {
 		const cellDate = date.format("YYYY-MM-DD");
 		const isBooked = availableBookings.includes(cellDate);
-		console.log("THE DATES BOOKED ARE => ", cellDate);		
-		console.log("THE BOOKING STATUS FOR THE DATE => ", isBooked);		
+		console.log("THE DATES BOOKED ARE => ", cellDate);
+		console.log("THE BOOKING STATUS FOR THE DATE => ", isBooked);
 		return isBooked && <span className="calendarBooking" />;
 	};
 
@@ -116,35 +116,35 @@ const Home: NextPage = () => {
 		setActiveBookings(undefined);
 		setActiveBooking(undefined);
 
+		let updatedBookings: Array<StrapiResponseData<Booking>> = bookings;
+
 		strapiResponse.forEach((apiBooking) => {
 			const { id } = apiBooking;
 			// Checks if the booking is present in the booking state value
-			const existingIndex = bookings.findIndex(({ id: bookingId }) => {
+			const existingIndex = updatedBookings.findIndex(({ id: bookingId }) => {
 				return bookingId === id;
 			});
 			// TODO: Read and add more description via comments
 			if (existingIndex >= 0) {
-				let updatedBookings = [];
 				if (existingIndex === 0) {
-					updatedBookings = [apiBooking];
+					updatedBookings = [...updatedBookings, apiBooking];
 				} else {
-					updatedBookings = [...bookings.slice(0, existingIndex), apiBooking, ...bookings.slice(existingIndex)];
+					updatedBookings = [...updatedBookings.slice(0, existingIndex), apiBooking, ...updatedBookings.slice(existingIndex + 1)];
 				}
-				setBookings(updatedBookings);
-				console.log("MONTHLY BOOKINGS UPDATED *********** ", updatedBookings);				
-				const monthlyTripDates = getMonthlyTripDates(updatedBookings);
-				console.log("MONTHLY TRIP DATES *********** ", monthlyTripDates);				
-				setAvailableBookings(monthlyTripDates);
-				return;
+			console.log('inside loop', updatedBookings)
+			return;
 			}
 			// Updates the local state and works with 
-			const updatedBookings: Array<StrapiResponseData<Booking>> = [...bookings, ...strapiResponse];
-			setBookings(updatedBookings);
-			console.log("UPDATED BOOKINGS FOR NEW BOOKING *********** ", updatedBookings);				
-			const monthlyTripDates = getMonthlyTripDates(updatedBookings);
-			console.log("MONTHLY TRIP DATES FOR NEW BOOKING *********** ", monthlyTripDates);				
-			setAvailableBookings(monthlyTripDates);
+			updatedBookings = [...updatedBookings, ...strapiResponse];
+			console.log('inside loop', updatedBookings)
+
 		});
+		console.log('outside loop', updatedBookings)
+		setBookings(updatedBookings);
+		console.log("UPDATED BOOKINGS", updatedBookings);
+		const monthlyTripDates = getMonthlyTripDates(updatedBookings);
+		console.log("MONTHLY TRIP DATES", monthlyTripDates);
+		setAvailableBookings(monthlyTripDates);
 	};
 
 	const handleCancel = () => {
