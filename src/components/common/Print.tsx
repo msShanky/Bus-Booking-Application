@@ -1,12 +1,7 @@
 /* eslint-disable react/display-name */
-import { Badge, Col, Descriptions, Layout, Row, Typography } from "antd";
-import { Content, Footer, Header } from "antd/lib/layout/layout";
-import Sider from "antd/lib/layout/Sider";
-import React, { forwardRef, FunctionComponent, MutableRefObject, Ref } from "react";
-const { Title } = Typography;
+import React, { forwardRef } from "react";
 import moment from "moment";
 
-type RefType = MutableRefObject<HTMLDivElement | null>;
 type PrintProps = {
 	booking: StrapiResponseData<Booking>;
 };
@@ -23,102 +18,110 @@ const Print = forwardRef<HTMLDivElement, PrintProps>((props, ref) => {
 					<div>
 						<h2>Client Information</h2>
 						<table className="invoicetable">
-							<tr>
-								<th>Invoice Number</th>
-								<td>{booking?.id}</td>
-							</tr>
-							<tr>
-								<th>Name</th>
-								<td>{booking?.attributes.client?.data?.attributes.name}</td>
-							</tr>
-							<tr>
-								<th>Contact</th>
-								<td>{booking?.attributes.client?.data?.attributes.contact}</td>
-							</tr>
-							<tr>
-								<th>Address</th>
-								<td>{booking?.attributes.client?.data?.attributes.address}</td>
-							</tr>
+							<tbody>
+								<tr>
+									<td><strong>Invoice Number</strong></td>
+									<td>{booking?.id}</td>
+								</tr>
+								<tr>
+									<td><strong>Name</strong></td>
+									<td>{booking?.attributes.client?.data?.attributes.name}</td>
+								</tr>
+								<tr>
+									<td><strong>Contact</strong></td>
+									<td>{booking?.attributes.client?.data?.attributes.contact}</td>
+								</tr>
+								<tr>
+									<td><strong>Address</strong></td>
+									<td>{booking?.attributes.client?.data?.attributes.address}</td>
+								</tr>
+							</tbody>
 						</table>
 					</div>
 					<div>
 						<h2>Trip Information</h2>
 						<table className="invoicetable">
-							<tr>
-								<th>From</th>
-								<td>{booking?.attributes.trip?.data?.attributes.source}</td>
-							</tr>
-							<tr>
-								<th>To</th>
-								<td>{booking?.attributes.trip?.data?.attributes.destination}</td>
-							</tr>
-							<tr>
-								<th>Pickup Date</th>
-								<td>{moment(booking?.attributes.trip?.data?.attributes.tripDate).format("DD-MM-YYYY")}</td>
-							</tr>
-							<tr>
-								<th>Pickup Time</th>
-								<td>{booking?.attributes.trip?.data?.attributes.pickupTime}</td>
-							</tr>
+							<tbody>
+								<tr>
+									<td><strong>From</strong></td>
+									<td>{booking?.attributes.trip?.data?.attributes.source}</td>
+								</tr>
+								<tr>
+									<td><strong>To</strong></td>
+									<td>{booking?.attributes.trip?.data?.attributes.destination}</td>
+								</tr>
+								<tr>
+									<td><strong>Pickup Date</strong></td>
+									<td>{moment(booking?.attributes.trip?.data?.attributes.tripDate).format("DD-MM-YYYY")}</td>
+								</tr>
+								<tr>
+									<td><strong>Pickup Time</strong></td>
+									<td>{booking?.attributes.trip?.data?.attributes.pickupTime}</td>
+								</tr>
+							</tbody>
 						</table>
 					</div>
 					<div className="fullwidth">
 						<h2>Estimated Information</h2>
 						<table className="invoicetable">
-							<tr>
-								<th>Booking Status</th>
-								<td>{booking?.attributes.bookingState}</td>
-							</tr>
-							<tr>
-								<th>Kilometer</th>
-								<td>{booking?.attributes.kilometer} KM</td>
-							</tr>
-							<tr>
-								<th>Diesel</th>
-								<td>{booking?.attributes.diesel} Ltr</td>
-							</tr>
-							<tr>
-								<th>Fast Tag</th>
-								<td>{booking?.attributes.fasttag} Rs</td>
-							</tr>
-							<tr>
-								<th>Quoted Prize</th>
-								<td>{booking?.attributes.quotedPrice} Rs</td>
-							</tr>
-							<tr>
-								<th>Advance Paid</th>
-								<td>{booking?.attributes.advancePaid} Rs</td>
-							</tr>
-							<tr style={{ background: '#ccc' }}>
-								<th>Balance Amount</th>
-								<td><strong>{booking?.attributes.balanceAmount} Rs</strong></td>
-							</tr>
+							<tbody>
+								<tr>
+									<td><strong>Booking Status</strong></td>
+									<td>{booking?.attributes.bookingState}</td>
+								</tr>
+								<tr>
+									<td><strong>Kilometer</strong></td>
+									<td>{booking?.attributes.kilometer} KM</td>
+								</tr>
+								<tr>
+									<td><strong>Diesel</strong></td>
+									<td>{booking?.attributes.diesel} Ltr</td>
+								</tr>
+								<tr>
+									<td><strong>Fast Tag</strong></td>
+									<td>{booking?.attributes.fasttag} Rs</td>
+								</tr>
+								<tr>
+									<td><strong>Quoted Prize</strong></td>
+									<td>{booking?.attributes.quotedPrice} Rs</td>
+								</tr>
+								<tr>
+									<td><strong>Advance Paid</strong></td>
+									<td>{booking?.attributes.advancePaid} Rs</td>
+								</tr>
+								<tr style={{ background: '#ccc' }}>
+									<td><strong>Balance Amount</strong></td>
+									<td><strong>{booking?.attributes.balanceAmount} Rs</strong></td>
+								</tr>
+							</tbody>
 						</table>
 					</div>
 					<div className="fullwidth" style={{ marginTop: '240px' }}>
 						<h2>Invoice Information</h2>
 						{booking?.attributes.invoice?.data && (
 							<table className="invoicetable">
-								<tr>
-									<th>Invoice Date</th>
-									<td>{booking.attributes.invoice?.data.attributes.invoiceDate}</td>
-								</tr>
-								<tr>
-									<th>Kilometer</th>
-									<td>{booking.attributes.invoice?.data.attributes.kilometer} KM</td>
-								</tr>
-								<tr>
-									<th>Diesel Cost</th>
-									<td>{booking.attributes.invoice?.data.attributes.dieselCost} Rs</td>
-								</tr>
-								<tr>
-									<th>Milage</th>
-									<td>{booking.attributes.invoice?.data.attributes.milage}</td>
-								</tr>
-								<tr style={{ background: '#ccc' }}>
-									<th>Total Amount</th>
-									<td><strong>{booking.attributes.invoice?.data.attributes.totalAmount} Rs</strong></td>
-								</tr>
+								<tbody>
+									<tr>
+										<td><strong>Invoice Date</strong></td>
+										<td>{booking.attributes.invoice?.data.attributes.invoiceDate}</td>
+									</tr>
+									<tr>
+										<td><strong>Kilometer</strong></td>
+										<td>{booking.attributes.invoice?.data.attributes.kilometer} KM</td>
+									</tr>
+									<tr>
+										<td><strong>Diesel Cost</strong></td>
+										<td>{booking.attributes.invoice?.data.attributes.dieselCost} Rs</td>
+									</tr>
+									<tr>
+										<td><strong>Milage</strong></td>
+										<td>{booking.attributes.invoice?.data.attributes.milage}</td>
+									</tr>
+									<tr style={{ background: '#ccc' }}>
+										<td><strong>Total Amount</strong></td>
+										<td><strong>{booking.attributes.invoice?.data.attributes.totalAmount} Rs</strong></td>
+									</tr>
+								</tbody>
 							</table>
 						)}
 					</div>
